@@ -171,13 +171,68 @@ INSERT INTO units (unit_id, name, parent_unit_id, level) VALUES
 ON CONFLICT (unit_id) DO NOTHING;
 
 -- Sample Soldiers
-INSERT INTO soldiers (soldier_id, name, rank, unit_id, device_id, status) VALUES 
-('ALPHA_01', 'Lt. John Smith', 'Lieutenant', 'PLT_1', 'DEVICE_001', 'active'),
-('ALPHA_02', 'Sgt. Mike Johnson', 'Sergeant', 'SQD_1', 'DEVICE_002', 'active'),
-('ALPHA_03', 'Pvt. David Wilson', 'Private', 'SQD_1', 'DEVICE_003', 'active'),
-('ALPHA_04', 'Cpl. Sarah Brown', 'Corporal', 'SQD_2', 'DEVICE_004', 'active'),
-('BRAVO_01', 'Capt. Tom Davis', 'Captain', 'CO_B', 'DEVICE_005', 'active')
+INSERT INTO soldiers (soldier_id, name, rank, unit_id, device_id, status, last_seen) VALUES 
+('ALPHA_01', 'Lt. John Smith', 'Lieutenant', 'PLT_1', 'DEVICE_001', 'active', NOW() - INTERVAL '5 minutes'),
+('ALPHA_02', 'Sgt. Mike Johnson', 'Sergeant', 'SQD_1', 'DEVICE_002', 'active', NOW() - INTERVAL '2 minutes'),
+('ALPHA_03', 'Pvt. David Wilson', 'Private', 'SQD_1', 'DEVICE_003', 'active', NOW() - INTERVAL '1 minute'),
+('ALPHA_04', 'Cpl. Sarah Brown', 'Corporal', 'SQD_2', 'DEVICE_004', 'active', NOW() - INTERVAL '3 minutes'),
+('BRAVO_01', 'Capt. Tom Davis', 'Captain', 'CO_B', 'DEVICE_005', 'active', NOW() - INTERVAL '10 minutes')
 ON CONFLICT (soldier_id) DO NOTHING;
+
+-- Sample Raw Inputs
+INSERT INTO soldier_raw_inputs (input_id, soldier_id, timestamp, raw_text, input_type, confidence) VALUES 
+('INPUT_001', 'ALPHA_02', NOW() - INTERVAL '30 minutes', 'We have a soldier down with gunshot wound to the leg. Need immediate CASEVAC at grid 38SMB 123 456.', 'voice', 0.95),
+('INPUT_002', 'ALPHA_04', NOW() - INTERVAL '45 minutes', 'Found suspicious device buried by roadside. Appears to be IED. Requesting EOD team.', 'voice', 0.92),
+('INPUT_003', 'ALPHA_01', NOW() - INTERVAL '1 hour', 'Patrol complete. All personnel accounted for. Returning to base.', 'voice', 0.98),
+('INPUT_004', 'BRAVO_01', NOW() - INTERVAL '2 hours', 'Enemy contact at grid 38SMB 789 012. 8-10 personnel with small arms. Engaging.', 'voice', 0.89),
+('INPUT_005', 'ALPHA_03', NOW() - INTERVAL '15 minutes', 'Vehicle checkpoint established. Light civilian traffic observed.', 'voice', 0.94)
+ON CONFLICT (input_id) DO NOTHING;
+
+-- Sample Reports
+INSERT INTO reports (report_id, soldier_id, unit_id, timestamp, report_type, structured_json, confidence, source_input_id, status) VALUES 
+('REPORT_001', 'ALPHA_02', 'SQD_1', NOW() - INTERVAL '30 minutes', 'CASEVAC', 
+'{"casualties": [{"name": "Pvt. Williams", "injury": "Gunshot wound to left leg", "severity": "URGENT", "status": "Stable"}], "location": "Grid 38SMB 123 456", "evacuation_point": "LZ Alpha", "urgency": "URGENT", "enemy_activity": "Sporadic small arms fire", "security": "Secured by squad element"}', 
+0.95, 'INPUT_001', 'generated'),
+
+('REPORT_002', 'ALPHA_04', 'SQD_2', NOW() - INTERVAL '45 minutes', 'EOINCREP',
+'{"incident_type": "IED Discovery", "location": "Grid 38SMB 456 789", "description": "Suspected IED found buried at roadside, wires visible", "threat_level": "HIGH", "action_taken": "Area cordoned off, EOD team requested", "casualties": "None", "time_discovered": "14:30"}',
+0.92, 'INPUT_002', 'generated'),
+
+('REPORT_003', 'ALPHA_01', 'PLT_1', NOW() - INTERVAL '1 hour', 'SITREP',
+'{"unit": "1st Platoon", "location": "Patrol Route Alpha", "situation": "Patrol completed successfully", "enemy_activity": "None observed", "friendly_forces": "All personnel accounted for", "logistics": "Supplies adequate", "next_action": "Return to base for debrief"}',
+0.98, 'INPUT_003', 'generated'),
+
+('REPORT_004', 'BRAVO_01', 'CO_B', NOW() - INTERVAL '2 hours', 'SPOTREP',
+'{"what": "Enemy patrol, 8-10 personnel with small arms", "when": "14:45 local time", "where": "Grid 38SMB 789 012", "activity": "Moving north along ridgeline", "assessment": "Likely reconnaissance element", "action_taken": "Engaging enemy forces"}',
+0.89, 'INPUT_004', 'generated'),
+
+('REPORT_005', 'ALPHA_03', 'SQD_1', NOW() - INTERVAL '15 minutes', 'SITREP',
+'{"unit": "1st Squad", "location": "Checkpoint Delta", "situation": "Maintaining checkpoint security", "enemy_activity": "None observed", "friendly_forces": "Full strength", "logistics": "Supplies adequate", "next_action": "Continue checkpoint operations"}',
+0.94, 'INPUT_005', 'generated')
+ON CONFLICT (report_id) DO NOTHING;
+
+-- Sample Device Status
+INSERT INTO device_status (device_id, soldier_id, status, last_heartbeat, battery_level, signal_strength, location_lat, location_lon) VALUES 
+('DEVICE_001', 'ALPHA_01', 'active', NOW() - INTERVAL '5 minutes', 85, 75, 60.1699, 24.9384),
+('DEVICE_002', 'ALPHA_02', 'active', NOW() - INTERVAL '2 minutes', 92, 82, 60.1705, 24.9390),
+('DEVICE_003', 'ALPHA_03', 'active', NOW() - INTERVAL '1 minute', 78, 68, 60.1695, 24.9388),
+('DEVICE_004', 'ALPHA_04', 'active', NOW() - INTERVAL '3 minutes', 88, 79, 60.1701, 24.9385),
+('DEVICE_005', 'BRAVO_01', 'active', NOW() - INTERVAL '10 minutes', 65, 71, 60.1710, 24.9395)
+ON CONFLICT (device_id) DO NOTHING;
+
+-- Sample FRAGOs
+INSERT INTO fragos (frago_id, unit_id, task, assigned_by, assigned_at, status, priority, deadline) VALUES 
+('FRAGO_001', 'PLT_1', 'Establish checkpoint at Grid 38SMB 234 567 from 0600 to 1800', 'CO_A', NOW() - INTERVAL '6 hours', 'completed', 'high', NOW() + INTERVAL '12 hours'),
+('FRAGO_002', 'SQD_1', 'Patrol Route Bravo and report any suspicious activity', 'PLT_1', NOW() - INTERVAL '3 hours', 'in_progress', 'medium', NOW() + INTERVAL '6 hours'),
+('FRAGO_003', 'CO_B', 'Conduct area reconnaissance of sector 7', 'BAT_1', NOW() - INTERVAL '1 hour', 'pending', 'high', NOW() + INTERVAL '24 hours')
+ON CONFLICT (frago_id) DO NOTHING;
+
+-- Sample Suggestions
+INSERT INTO suggestions (suggestion_id, report_id, unit_id, suggestion_type, suggestion_text, priority, status) VALUES 
+('SUGG_001', 'REPORT_001', 'PLT_1', 'CASEVAC', 'Recommend immediate helicopter evacuation. Coordinate with medical team for trauma surgery preparation.', 'high', 'pending'),
+('SUGG_002', 'REPORT_002', 'SQD_2', 'EOD', 'Deploy EOD team immediately. Establish 300m perimeter and reroute all traffic until device is cleared.', 'high', 'pending'),
+('SUGG_003', 'REPORT_004', 'CO_B', 'TACTICAL', 'Enemy reconnaissance detected. Recommend increased patrols and establish observation posts on high ground.', 'medium', 'pending')
+ON CONFLICT (suggestion_id) DO NOTHING;
 """
 
 
