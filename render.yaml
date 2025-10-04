@@ -28,7 +28,7 @@ services:
     runtime: node
     plan: free
     rootDir: mil_dashboard
-    buildCommand: npm install --legacy-peer-deps && npm run build
+    buildCommand: rm -f package-lock.json && npm install --legacy-peer-deps && npm run build
     startCommand: npm run start
     envVars:
       - key: NODE_VERSION
