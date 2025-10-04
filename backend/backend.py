@@ -622,16 +622,16 @@ async def get_all_reports(limit: int = 1000):
 async def create_report(soldier_id: str, report_data: Dict[str, Any]):
     """Create a new structured report."""
     try:
-        conn = get_db_connection()
-        c = conn.cursor()
-        
-        # Get soldier's unit_id
-        c.execute("SELECT unit_id FROM soldiers WHERE soldier_id = ?", (soldier_id,))
-        result = c.fetchone()
-        if not result:
+        # Get soldier's unit_id using the helper function
+        soldier_result = execute_query(
+            "SELECT unit_id FROM soldiers WHERE soldier_id = ?", 
+            (soldier_id,), 
+            fetch_one=True
+        )
+        if not soldier_result:
             raise HTTPException(status_code=404, detail="Soldier not found")
         
-        unit_id = result[0]
+        unit_id = soldier_result["unit_id"]
         report_id = str(uuid.uuid4())
         timestamp = datetime.now().isoformat()
         
@@ -643,7 +643,7 @@ async def create_report(soldier_id: str, report_data: Dict[str, Any]):
         if "description" not in structured_json:
             structured_json["description"] = generate_report_description(report_type, structured_json)
         
-        c.execute("""
+        execute_query("""
             INSERT INTO reports (report_id, soldier_id, unit_id, timestamp, report_type, structured_json, confidence)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         """, (
@@ -652,9 +652,6 @@ async def create_report(soldier_id: str, report_data: Dict[str, Any]):
             json.dumps(structured_json),
             report_data.get("confidence", 0.0)
         ))
-        
-        conn.commit()
-        conn.close()
         
         # SMART NOTIFICATIONS: Analyze for triggers after saving report
         try:
@@ -679,18 +676,19 @@ async def create_report(soldier_id: str, report_data: Dict[str, Any]):
 async def create_raw_input(soldier_id: str, input_data: Dict[str, Any]):
     """Create a new raw input from a soldier."""
     try:
-        conn = get_db_connection()
-        c = conn.cursor()
-        
-        # Verify soldier exists
-        c.execute("SELECT soldier_id FROM soldiers WHERE soldier_id = ?", (soldier_id,))
-        if not c.fetchone():
+        # Verify soldier exists using helper function
+        soldier_result = execute_query(
+            "SELECT soldier_id FROM soldiers WHERE soldier_id = ?", 
+            (soldier_id,), 
+            fetch_one=True
+        )
+        if not soldier_result:
             raise HTTPException(status_code=404, detail="Soldier not found")
         
         input_id = str(uuid.uuid4())
         timestamp = input_data.get("timestamp", datetime.now().isoformat())
         
-        c.execute("""
+        execute_query("""
             INSERT INTO soldier_raw_inputs (input_id, soldier_id, timestamp, raw_text, raw_audio_ref, input_type, confidence, location_ref)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """, (
@@ -701,9 +699,6 @@ async def create_raw_input(soldier_id: str, input_data: Dict[str, Any]):
             input_data.get("confidence", 0.0),
             input_data.get("location_ref")
         ))
-        
-        conn.commit()
-        conn.close()
         
         return {"message": "Raw input created successfully", "input_id": input_id}
         
