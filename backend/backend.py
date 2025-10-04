@@ -19,8 +19,8 @@ logger = logging.getLogger(__name__)
 # Configure Gemini API
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyB2LVUXt2a9nMCpJwGJWen4_EECudv9u_c")
 genai.configure(api_key=GEMINI_API_KEY)
-# Use gemini-2.5-pro - most capable model with advanced reasoning
-gemini_model = genai.GenerativeModel('gemini-2.5-pro')
+# Use gemini-2.5-flash - fast model optimized for speed while maintaining quality
+gemini_model = genai.GenerativeModel('gemini-2.5-flash')
 
 app = FastAPI(title="Military Hierarchy Backend", version="1.0.0")
 
@@ -422,76 +422,101 @@ async def root():
 @app.get("/units")
 async def get_units():
     """Get all military units."""
-    rows = execute_query(
-        "SELECT * FROM units ORDER BY level, name", 
-        fetch_all=True
-    )
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute("SELECT * FROM units ORDER BY level, name")
+    rows = c.fetchall()
+    conn.close()
     
-    return {"units": rows if rows else []}
+    columns = ["unit_id", "name", "parent_unit_id", "level"]
+    return {"units": [dict(zip(columns, row)) for row in rows]}
 
 @app.get("/units/{unit_id}/soldiers")
 async def get_soldiers_by_unit(unit_id: str):
     """Get all soldiers in a specific unit."""
-    rows = execute_query("""
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute("""
         SELECT s.*, u.name as unit_name 
         FROM soldiers s 
         JOIN units u ON s.unit_id = u.unit_id 
         WHERE s.unit_id = ?
         ORDER BY s.rank, s.name
-    """, (unit_id,), fetch_all=True)
+    """, (unit_id,))
+    rows = c.fetchall()
+    conn.close()
     
-    return {"soldiers": rows if rows else []}
+    columns = ["soldier_id", "name", "rank", "unit_id", "device_id", "unit_name"]
+    return {"soldiers": [dict(zip(columns, row)) for row in rows]}
 
 @app.get("/soldiers")
 async def get_all_soldiers():
     """Get all soldiers."""
-    rows = execute_query("""
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute("""
         SELECT s.*, u.name as unit_name, u.level as unit_level
         FROM soldiers s 
         JOIN units u ON s.unit_id = u.unit_id 
         ORDER BY u.level, s.rank, s.name
-    """, fetch_all=True)
+    """)
+    rows = c.fetchall()
+    conn.close()
     
-    return {"soldiers": rows if rows else []}
+    columns = ["soldier_id", "name", "rank", "unit_id", "device_id", "unit_name", "unit_level"]
+    return {"soldiers": [dict(zip(columns, row)) for row in rows]}
 
 @app.get("/hierarchy")
 async def get_hierarchy():
     """Get the complete military hierarchy with nested structure."""
+    conn = get_db_connection()
+    c = conn.cursor()
+    
     # Get all units with their hierarchy information
-    units = execute_query("""
+    c.execute("""
         SELECT u.unit_id, u.name, u.parent_unit_id, u.level, u.created_at
         FROM units u
         ORDER BY u.level, u.name
-    """, fetch_all=True)
+    """)
+    units = c.fetchall()
     
     # Get all soldiers grouped by unit
-    soldiers = execute_query("""
+    c.execute("""
         SELECT s.soldier_id, s.name, s.rank, s.unit_id, s.device_id, s.status, s.created_at, s.last_seen
         FROM soldiers s
         ORDER BY s.unit_id, s.name
-    """, fetch_all=True)
+    """)
+    soldiers = c.fetchall()
     
-    if not units:
-        return {"hierarchy": []}
+    conn.close()
     
     # Group soldiers by unit
     soldiers_by_unit = {}
     for soldier in soldiers:
-        unit_id = soldier.get("unit_id")
+        unit_id = soldier[3]
         if unit_id not in soldiers_by_unit:
             soldiers_by_unit[unit_id] = []
-        soldiers_by_unit[unit_id].append(soldier)
+        soldiers_by_unit[unit_id].append({
+            "soldier_id": soldier[0],
+            "name": soldier[1],
+            "rank": soldier[2],
+            "unit_id": soldier[3],
+            "device_id": soldier[4],
+            "status": soldier[5],
+            "created_at": soldier[6],
+            "last_seen": soldier[7]
+        })
     
     # Build hierarchy structure
     hierarchy = []
     for unit in units:
         unit_data = {
-            "unit_id": unit.get("unit_id"),
-            "name": unit.get("name"),
-            "parent_unit_id": unit.get("parent_unit_id"),
-            "level": unit.get("level"),
-            "created_at": unit.get("created_at"),
-            "soldiers": soldiers_by_unit.get(unit.get("unit_id"), [])
+            "unit_id": unit[0],
+            "name": unit[1],
+            "parent_unit_id": unit[2],
+            "level": unit[3],
+            "created_at": unit[4],
+            "soldiers": soldiers_by_unit.get(unit[0], [])
         }
         hierarchy.append(unit_data)
     
@@ -500,34 +525,61 @@ async def get_hierarchy():
 @app.get("/units/{unit_id}/soldiers")
 async def get_unit_soldiers(unit_id: str):
     """Get all soldiers in a specific unit."""
-    soldiers = execute_query("""
+    conn = get_db_connection()
+    c = conn.cursor()
+    
+    c.execute("""
         SELECT s.soldier_id, s.name, s.rank, s.unit_id, s.device_id, s.status, s.created_at, s.last_seen
         FROM soldiers s
         WHERE s.unit_id = ?
         ORDER BY s.name
-    """, (unit_id,), fetch_all=True)
+    """, (unit_id,))
     
-    return {"soldiers": soldiers if soldiers else []}
+    soldiers = c.fetchall()
+    conn.close()
+    
+    return {
+        "soldiers": [
+            {
+                "soldier_id": s[0],
+                "name": s[1],
+                "rank": s[2],
+                "unit_id": s[3],
+                "device_id": s[4],
+                "status": s[5],
+                "created_at": s[6],
+                "last_seen": s[7]
+            }
+            for s in soldiers
+        ]
+    }
 
 @app.get("/soldiers/{soldier_id}/raw_inputs")
 async def get_soldier_raw_inputs(soldier_id: str, limit: int = 500):
     """Get raw inputs from a specific soldier."""
-    rows = execute_query("""
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute("""
         SELECT * FROM soldier_raw_inputs 
         WHERE soldier_id = ? 
         ORDER BY timestamp DESC 
         LIMIT ?
-    """, (soldier_id, limit), fetch_all=True)
+    """, (soldier_id, limit))
+    rows = c.fetchall()
+    conn.close()
     
+    columns = ["input_id", "soldier_id", "timestamp", "raw_text", "raw_audio_ref"]
     return {
         "soldier_id": soldier_id, 
-        "raw_inputs": rows if rows else []
+        "raw_inputs": [dict(zip(columns, row)) for row in rows]
     }
 
 @app.get("/soldiers/{soldier_id}/reports")
 async def get_soldier_reports(soldier_id: str, limit: int = 500):
     """Get structured reports from a specific soldier."""
-    rows = execute_query("""
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute("""
         SELECT r.*, s.name as soldier_name, u.name as unit_name
         FROM reports r
         JOIN soldiers s ON r.soldier_id = s.soldier_id
@@ -535,26 +587,36 @@ async def get_soldier_reports(soldier_id: str, limit: int = 500):
         WHERE r.soldier_id = ? 
         ORDER BY r.timestamp DESC 
         LIMIT ?
-    """, (soldier_id, limit), fetch_all=True)
+    """, (soldier_id, limit))
+    rows = c.fetchall()
+    conn.close()
     
+    columns = ["report_id", "soldier_id", "unit_id", "timestamp", "report_type", 
+               "structured_json", "confidence", "soldier_name", "unit_name"]
     return {
         "soldier_id": soldier_id, 
-        "reports": rows if rows else []
+        "reports": [dict(zip(columns, row)) for row in rows]
     }
 
 @app.get("/reports")
 async def get_all_reports(limit: int = 1000):
     """Get all structured reports."""
-    rows = execute_query("""
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute("""
         SELECT r.*, s.name as soldier_name, u.name as unit_name
         FROM reports r
         JOIN soldiers s ON r.soldier_id = s.soldier_id
         JOIN units u ON r.unit_id = u.unit_id
         ORDER BY r.timestamp DESC 
         LIMIT ?
-    """, (limit,), fetch_all=True)
+    """, (limit,))
+    rows = c.fetchall()
+    conn.close()
     
-    return {"reports": rows if rows else []}
+    columns = ["report_id", "soldier_id", "unit_id", "timestamp", "report_type", 
+               "structured_json", "confidence", "soldier_name", "unit_name"]
+    return {"reports": [dict(zip(columns, row)) for row in rows]}
 
 @app.post("/soldiers/{soldier_id}/reports")
 async def create_report(soldier_id: str, report_data: Dict[str, Any]):
@@ -860,8 +922,8 @@ ANALYSIS INSTRUCTIONS:
 BATTLEFIELD REPORTS ({report_count} total):
 """
             
-            # Add all reports with full details (limit to 50 to avoid token overload)
-            for i, report in enumerate(reports[:50], 1):
+            # Add all reports with full details (limit to 20 for faster response)
+            for i, report in enumerate(reports[:20], 1):
                 try:
                     # Handle both original backend format and transformed frontend format
                     report_type = report.get('report_type') or report.get('type', 'UNKNOWN')
@@ -881,8 +943,8 @@ BATTLEFIELD REPORTS ({report_count} total):
                     logger.error(f"Report structure: {report}")
                     continue
             
-            if report_count > 50:
-                prompt += f"\n... and {report_count - 50} more reports (showing first 50)\n"
+            if report_count > 20:
+                prompt += f"\n... and {report_count - 20} more reports (showing first 20)\n"
             
             prompt += "\n\nRESPONSE FORMAT:\n"
             prompt += "- Lead with executive summary (2-3 sentences)\n"
@@ -893,22 +955,33 @@ BATTLEFIELD REPORTS ({report_count} total):
             prompt += "- Be concise but comprehensive - focus on actionable intelligence"
             
             try:
-                # Call Gemini API with safety settings to avoid blocks
-                gemini_response = gemini_model.generate_content(
+                # Call Gemini API with safety settings and timeout
+                import google.generativeai as genai_timeout
+                genai_timeout.configure(api_key=GEMINI_API_KEY)
+                model_with_timeout = genai_timeout.GenerativeModel(
+                    'gemini-2.5-flash',
+                    generation_config={'response_mime_type': 'text/plain', 'max_output_tokens': 2048}
+                )
+                
+                gemini_response = model_with_timeout.generate_content(
                     prompt,
                     safety_settings={
                         'HARM_CATEGORY_HARASSMENT': 'BLOCK_NONE',
                         'HARM_CATEGORY_HATE_SPEECH': 'BLOCK_NONE',
                         'HARM_CATEGORY_SEXUALLY_EXPLICIT': 'BLOCK_NONE',
                         'HARM_CATEGORY_DANGEROUS_CONTENT': 'BLOCK_NONE',
-                    }
+                    },
+                    request_options={'timeout': 25}  # 25 second timeout (under Render's 30s limit)
                 )
                 response = gemini_response.text
                 logger.info(f"Gemini API success: Generated response for {report_count} reports")
+            except TimeoutError as e:
+                logger.error(f"Gemini API timeout: {e}")
+                response = f"AI analysis in progress... {report_count} reports being analyzed for {node.get('name')}. The analysis is taking longer than expected. Key data points: Check reports panel for details."
             except Exception as e:
                 logger.error(f"Gemini API error: {e}")
                 # Simple fallback without confusing prompts
-                response = f"Error: Unable to connect to AI service. Raw data: {report_count} reports available from {node.get('name')}. Please try again."
+                response = f"Error: Unable to connect to AI service. {report_count} reports available from {node.get('name')}. Please try again or check reports panel."
         
         return {
             "response": response,

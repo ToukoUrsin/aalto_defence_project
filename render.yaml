@@ -5,7 +5,7 @@ services:
     runtime: python
     plan: free
     buildCommand: pip install -r backend/requirements.txt && bash scripts/render_build.sh
-    startCommand: cd backend && gunicorn backend:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+    startCommand: cd backend && gunicorn backend:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 90 --graceful-timeout 90
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
