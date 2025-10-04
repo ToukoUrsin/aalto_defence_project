@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { API_BASE_URL } from '@/lib/api-config';
-import { 
-  Users, 
-  Shield, 
-  Building2, 
-  User, 
-  Radio, 
-  Clock, 
+import React, { useState, useEffect } from "react";
+import { API_BASE_URL } from "@/lib/api-config";
+import {
+  Users,
+  Shield,
+  Building2,
+  User,
+  Radio,
+  Clock,
   Activity,
   FileText,
   MapPin,
   AlertTriangle,
   CheckCircle,
-  XCircle
-} from 'lucide-react';
+  XCircle,
+} from "lucide-react";
 
 interface Unit {
   unit_id: string;
@@ -65,7 +65,7 @@ interface Report {
   unit_name?: string;
 }
 
-type SelectedNode = Unit & { soldiers?: Soldier[] } | Soldier;
+type SelectedNode = (Unit & { soldiers?: Soldier[] }) | Soldier;
 
 interface DetailPanelProps {
   selectedNode: SelectedNode | null;
@@ -75,7 +75,9 @@ export function DetailPanel({ selectedNode }: DetailPanelProps) {
   const [rawInputs, setRawInputs] = useState<RawInput[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'inputs' | 'reports'>('overview');
+  const [activeTab, setActiveTab] = useState<"overview" | "inputs" | "reports">(
+    "overview"
+  );
 
   useEffect(() => {
     if (selectedNode) {
@@ -89,11 +91,13 @@ export function DetailPanel({ selectedNode }: DetailPanelProps) {
     setLoading(true);
     try {
       // Check if it's a soldier (has soldier_id) or a unit
-      if ('soldier_id' in selectedNode) {
+      if ("soldier_id" in selectedNode) {
         // Fetch soldier-specific data
         const [inputsResponse, reportsResponse] = await Promise.all([
-          fetch(`${API_BASE_URL}/soldiers/${selectedNode.soldier_id}/raw_inputs`),
-          fetch(`${API_BASE_URL}/soldiers/${selectedNode.soldier_id}/reports`)
+          fetch(
+            `${API_BASE_URL}/soldiers/${selectedNode.soldier_id}/raw_inputs`
+          ),
+          fetch(`${API_BASE_URL}/soldiers/${selectedNode.soldier_id}/reports`),
         ]);
 
         const inputsData = await inputsResponse.json();
@@ -103,46 +107,50 @@ export function DetailPanel({ selectedNode }: DetailPanelProps) {
         setReports(reportsData.reports || []);
       } else {
         // For units, fetch all reports from soldiers in that unit
-        const response = await fetch(`http://localhost:8000/units/${selectedNode.unit_id}/soldiers`);
+        const response = await fetch(
+          `http://localhost:8000/units/${selectedNode.unit_id}/soldiers`
+        );
         const soldiersData = await response.json();
-        
+
         if (soldiersData.soldiers && soldiersData.soldiers.length > 0) {
           // Fetch reports for all soldiers in the unit
           const reportPromises = soldiersData.soldiers.map((soldier: any) =>
-            fetch(`http://localhost:8000/soldiers/${soldier.soldier_id}/reports`)
+            fetch(
+              `http://localhost:8000/soldiers/${soldier.soldier_id}/reports`
+            )
           );
-          
+
           const reportResponses = await Promise.all(reportPromises);
           const allReports = [];
-          
+
           for (const res of reportResponses) {
             const data = await res.json();
             allReports.push(...(data.reports || []));
           }
-          
+
           setReports(allReports);
           setRawInputs([]); // Units don't have direct raw inputs
         }
       }
     } catch (error) {
-      console.error('Error fetching node data:', error);
+      console.error("Error fetching node data:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const getNodeIcon = (node: SelectedNode) => {
-    if ('soldier_id' in node) {
+    if ("soldier_id" in node) {
       return <User className="h-5 w-5 text-blue-500" />;
     } else {
       switch (node.level.toLowerCase()) {
-        case 'battalion':
+        case "battalion":
           return <Building2 className="h-5 w-5 text-blue-500" />;
-        case 'company':
+        case "company":
           return <Shield className="h-5 w-5 text-green-500" />;
-        case 'platoon':
+        case "platoon":
           return <Users className="h-5 w-5 text-orange-500" />;
-        case 'squad':
+        case "squad":
           return <User className="h-5 w-5 text-purple-500" />;
         default:
           return <Users className="h-5 w-5 text-gray-500" />;
@@ -152,11 +160,11 @@ export function DetailPanel({ selectedNode }: DetailPanelProps) {
 
   const getStatusIcon = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'active':
+      case "active":
         return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'injured':
+      case "injured":
         return <AlertTriangle className="h-4 w-4 text-red-500" />;
-      case 'missing':
+      case "missing":
         return <XCircle className="h-4 w-4 text-red-500" />;
       default:
         return <Activity className="h-4 w-4 text-gray-500" />;
@@ -165,18 +173,18 @@ export function DetailPanel({ selectedNode }: DetailPanelProps) {
 
   const getReportTypeColor = (type: string) => {
     switch (type) {
-      case 'CASEVAC':
-      case 'MEDEVAC':
-        return 'bg-military-red/20 text-foreground border-military-red/30';
-      case 'EOINCREP':
-      case 'SPOTREP':
-        return 'bg-military-amber/20 text-foreground border-military-amber/30';
-      case 'INTREP':
-        return 'bg-military-blue/20 text-foreground border-military-blue/30';
-      case 'SITREP':
-        return 'bg-military-olive/20 text-foreground border-military-olive/30';
+      case "CASEVAC":
+      case "MEDEVAC":
+        return "bg-military-red/20 text-foreground border-military-red/30";
+      case "EOINCREP":
+      case "SPOTREP":
+        return "bg-military-amber/20 text-foreground border-military-amber/30";
+      case "INTREP":
+        return "bg-military-blue/20 text-foreground border-military-blue/30";
+      case "SITREP":
+        return "bg-military-olive/20 text-foreground border-military-olive/30";
       default:
-        return 'bg-muted text-foreground border-border';
+        return "bg-muted text-foreground border-border";
     }
   };
 
@@ -195,7 +203,7 @@ export function DetailPanel({ selectedNode }: DetailPanelProps) {
     );
   }
 
-  const isSoldier = 'soldier_id' in selectedNode;
+  const isSoldier = "soldier_id" in selectedNode;
 
   return (
     <div className="h-full flex flex-col bg-card">
@@ -218,31 +226,31 @@ export function DetailPanel({ selectedNode }: DetailPanelProps) {
       <div className="flex border-b border-border">
         <button
           className={`px-4 py-3 text-sm font-medium font-mono transition-colors ${
-            activeTab === 'overview'
-              ? 'text-foreground border-b-2 border-foreground bg-muted/50'
-              : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
+            activeTab === "overview"
+              ? "text-foreground border-b-2 border-foreground bg-muted/50"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
           }`}
-          onClick={() => setActiveTab('overview')}
+          onClick={() => setActiveTab("overview")}
         >
           OVERVIEW
         </button>
         <button
           className={`px-4 py-3 text-sm font-medium font-mono transition-colors ${
-            activeTab === 'inputs'
-              ? 'text-foreground border-b-2 border-foreground bg-muted/50'
-              : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
+            activeTab === "inputs"
+              ? "text-foreground border-b-2 border-foreground bg-muted/50"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
           }`}
-          onClick={() => setActiveTab('inputs')}
+          onClick={() => setActiveTab("inputs")}
         >
           RAW INPUTS ({rawInputs.length})
         </button>
         <button
           className={`px-4 py-3 text-sm font-medium font-mono transition-colors ${
-            activeTab === 'reports'
-              ? 'text-foreground border-b-2 border-foreground bg-muted/50'
-              : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
+            activeTab === "reports"
+              ? "text-foreground border-b-2 border-foreground bg-muted/50"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
           }`}
-          onClick={() => setActiveTab('reports')}
+          onClick={() => setActiveTab("reports")}
         >
           REPORTS ({reports.length})
         </button>
@@ -256,38 +264,62 @@ export function DetailPanel({ selectedNode }: DetailPanelProps) {
           </div>
         ) : (
           <div className="p-4">
-            {activeTab === 'overview' && (
+            {activeTab === "overview" && (
               <div className="space-y-4">
                 {/* Basic Info */}
                 <div className="neumorphic-inset rounded-lg p-6 border border-border/30">
-                  <h3 className="font-medium text-foreground mb-4 font-mono">BASIC INFORMATION</h3>
+                  <h3 className="font-medium text-foreground mb-4 font-mono">
+                    BASIC INFORMATION
+                  </h3>
                   <div className="space-y-3 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground font-mono">ID:</span>
-                      <span className="font-mono text-foreground">{isSoldier ? selectedNode.soldier_id : selectedNode.unit_id}</span>
+                      <span className="text-muted-foreground font-mono">
+                        ID:
+                      </span>
+                      <span className="font-mono text-foreground">
+                        {isSoldier
+                          ? selectedNode.soldier_id
+                          : selectedNode.unit_id}
+                      </span>
                     </div>
                     {isSoldier && (
                       <>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground font-mono">Device:</span>
-                          <span className="font-mono text-foreground">{selectedNode.device_id}</span>
+                          <span className="text-muted-foreground font-mono">
+                            Device:
+                          </span>
+                          <span className="font-mono text-foreground">
+                            {selectedNode.device_id}
+                          </span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-muted-foreground font-mono">Status:</span>
+                          <span className="text-muted-foreground font-mono">
+                            Status:
+                          </span>
                           <div className="flex items-center gap-1">
                             {getStatusIcon(selectedNode.status)}
-                            <span className="capitalize text-foreground font-mono">{selectedNode.status}</span>
+                            <span className="capitalize text-foreground font-mono">
+                              {selectedNode.status}
+                            </span>
                           </div>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground font-mono">Last Seen:</span>
-                          <span className="font-mono text-foreground">{formatTimestamp(selectedNode.last_seen)}</span>
+                          <span className="text-muted-foreground font-mono">
+                            Last Seen:
+                          </span>
+                          <span className="font-mono text-foreground">
+                            {formatTimestamp(selectedNode.last_seen)}
+                          </span>
                         </div>
                       </>
                     )}
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground font-mono">Created:</span>
-                      <span className="font-mono text-foreground">{formatTimestamp(selectedNode.created_at)}</span>
+                      <span className="text-muted-foreground font-mono">
+                        Created:
+                      </span>
+                      <span className="font-mono text-foreground">
+                        {formatTimestamp(selectedNode.created_at)}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -297,18 +329,26 @@ export function DetailPanel({ selectedNode }: DetailPanelProps) {
                   <div className="neumorphic-inset rounded-lg p-4 border border-border/30">
                     <div className="flex items-center gap-2 mb-1">
                       <FileText className="h-4 w-4 text-foreground" />
-                      <span className="text-sm font-medium text-foreground font-mono">REPORTS</span>
+                      <span className="text-sm font-medium text-foreground font-mono">
+                        REPORTS
+                      </span>
                     </div>
-                    <div className="text-2xl font-bold text-foreground font-mono">{reports.length}</div>
+                    <div className="text-2xl font-bold text-foreground font-mono">
+                      {reports.length}
+                    </div>
                   </div>
-                  
+
                   {isSoldier && (
                     <div className="neumorphic-inset rounded-lg p-4 border border-border/30">
                       <div className="flex items-center gap-2 mb-1">
                         <Radio className="h-4 w-4 text-foreground" />
-                        <span className="text-sm font-medium text-foreground font-mono">INPUTS</span>
+                        <span className="text-sm font-medium text-foreground font-mono">
+                          INPUTS
+                        </span>
                       </div>
-                      <div className="text-2xl font-bold text-foreground font-mono">{rawInputs.length}</div>
+                      <div className="text-2xl font-bold text-foreground font-mono">
+                        {rawInputs.length}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -316,15 +356,24 @@ export function DetailPanel({ selectedNode }: DetailPanelProps) {
                 {/* Recent Activity */}
                 {reports.length > 0 && (
                   <div className="neumorphic-inset rounded-lg p-6 border border-border/30">
-                    <h3 className="font-medium text-foreground mb-4 font-mono">RECENT ACTIVITY</h3>
+                    <h3 className="font-medium text-foreground mb-4 font-mono">
+                      RECENT ACTIVITY
+                    </h3>
                     <div className="space-y-3">
                       {reports.slice(0, 3).map((report) => (
-                        <div key={report.report_id} className="flex items-center gap-3 p-3 bg-card rounded border border-border/20">
-                          <span className={`px-2 py-1 text-xs rounded border font-mono ${getReportTypeColor(report.report_type)}`}>
+                        <div
+                          key={report.report_id}
+                          className="flex items-center gap-3 p-3 bg-card rounded border border-border/20"
+                        >
+                          <span
+                            className={`px-2 py-1 text-xs rounded border font-mono ${getReportTypeColor(
+                              report.report_type
+                            )}`}
+                          >
                             {report.report_type}
                           </span>
                           <span className="text-sm text-foreground flex-1 truncate font-mono">
-                            {report.soldier_name || 'Unknown'}
+                            {report.soldier_name || "Unknown"}
                           </span>
                           <span className="text-xs text-muted-foreground font-mono">
                             {formatTimestamp(report.timestamp)}
@@ -337,7 +386,7 @@ export function DetailPanel({ selectedNode }: DetailPanelProps) {
               </div>
             )}
 
-            {activeTab === 'inputs' && (
+            {activeTab === "inputs" && (
               <div className="space-y-3">
                 {rawInputs.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
@@ -355,9 +404,13 @@ export function DetailPanel({ selectedNode }: DetailPanelProps) {
                           {formatTimestamp(input.timestamp)}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-800 mb-2">{input.raw_text}</p>
+                      <p className="text-sm text-gray-800 mb-2">
+                        {input.raw_text}
+                      </p>
                       <div className="flex items-center justify-between text-xs text-gray-500">
-                        <span>Confidence: {(input.confidence * 100).toFixed(0)}%</span>
+                        <span>
+                          Confidence: {(input.confidence * 100).toFixed(0)}%
+                        </span>
                         {input.location_ref && (
                           <span className="flex items-center gap-1">
                             <MapPin className="h-3 w-3" />
@@ -371,7 +424,7 @@ export function DetailPanel({ selectedNode }: DetailPanelProps) {
               </div>
             )}
 
-            {activeTab === 'reports' && (
+            {activeTab === "reports" && (
               <div className="space-y-3">
                 {reports.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
@@ -380,9 +433,16 @@ export function DetailPanel({ selectedNode }: DetailPanelProps) {
                   </div>
                 ) : (
                   reports.map((report) => (
-                    <div key={report.report_id} className="border rounded-lg p-4">
+                    <div
+                      key={report.report_id}
+                      className="border rounded-lg p-4"
+                    >
                       <div className="flex items-center justify-between mb-2">
-                        <span className={`px-2 py-1 text-xs rounded border font-medium ${getReportTypeColor(report.report_type)}`}>
+                        <span
+                          className={`px-2 py-1 text-xs rounded border font-medium ${getReportTypeColor(
+                            report.report_type
+                          )}`}
+                        >
                           {report.report_type}
                         </span>
                         <span className="text-xs text-gray-500">
@@ -390,14 +450,20 @@ export function DetailPanel({ selectedNode }: DetailPanelProps) {
                         </span>
                       </div>
                       <div className="text-sm text-gray-600 mb-2">
-                        <span className="font-medium">Soldier:</span> {report.soldier_name}
+                        <span className="font-medium">Soldier:</span>{" "}
+                        {report.soldier_name}
                       </div>
                       <div className="text-sm text-gray-600 mb-3">
-                        <span className="font-medium">Confidence:</span> {(report.confidence * 100).toFixed(0)}%
+                        <span className="font-medium">Confidence:</span>{" "}
+                        {(report.confidence * 100).toFixed(0)}%
                       </div>
                       <div className="bg-gray-50 rounded p-3">
                         <pre className="text-xs text-gray-800 whitespace-pre-wrap">
-                          {JSON.stringify(JSON.parse(report.structured_json), null, 2)}
+                          {JSON.stringify(
+                            JSON.parse(report.structured_json),
+                            null,
+                            2
+                          )}
                         </pre>
                       </div>
                     </div>

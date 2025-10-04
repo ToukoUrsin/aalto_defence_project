@@ -37,6 +37,7 @@ Perfect for **hackathons** and **demos**!
 6. Click **"Apply"** to start deployment
 
 **What happens:**
+
 - ✅ Creates PostgreSQL database (free tier, 90 days)
 - ✅ Deploys backend API
 - ✅ Deploys frontend dashboard
@@ -47,6 +48,7 @@ Perfect for **hackathons** and **demos**!
 The blueprint will pause and ask for environment variables:
 
 1. **For Backend Service:**
+
    - Click on `military-hierarchy-backend` service
    - Go to **"Environment"** tab
    - Add:
@@ -61,12 +63,14 @@ The blueprint will pause and ask for environment variables:
 ### Step 4: Wait for Initial Build (10-15 minutes)
 
 Render will now:
+
 - 📦 Install dependencies
 - 🗄️ Initialize PostgreSQL database
 - 🏗️ Build backend and frontend
 - 🚀 Deploy everything
 
 **Watch the build logs:**
+
 - Click on each service to see progress
 - Look for **"Build succeeded"** message
 - Then **"Deploy succeeded"**
@@ -76,6 +80,7 @@ Render will now:
 Once deployed, Render provides URLs:
 
 1. **Backend API:**
+
    - Find in `military-hierarchy-backend` service
    - Format: `https://military-hierarchy-backend-xxxx.onrender.com`
    - Test: Visit `/hierarchy` endpoint
@@ -90,20 +95,25 @@ Once deployed, Render provides URLs:
 ## ✅ Verification Checklist
 
 ### Backend Health Check:
+
 ```bash
 curl https://your-backend-url.onrender.com/hierarchy
 ```
+
 Should return JSON with units.
 
 ### Frontend Access:
+
 - Open frontend URL in browser
 - Should see the Military Hierarchy Dashboard
 - Check if it connects to backend (network tab)
 
 ### Database Check:
+
 ```bash
 curl https://your-backend-url.onrender.com/soldiers
 ```
+
 Should return sample soldiers data.
 
 ---
@@ -114,6 +124,7 @@ Should return sample soldiers data.
 
 1. **Open Frontend URL** in browser
 2. **Test Features:**
+
    - View hierarchy tree
    - Check soldier reports
    - Test AI chat feature
@@ -131,25 +142,33 @@ Should return sample soldiers data.
 ## 🐛 Troubleshooting
 
 ### Issue: Build Fails
+
 **Solution:**
+
 - Check build logs in Render dashboard
 - Verify `GEMINI_API_KEY` is set correctly
 - Ensure GitHub repo is up to date
 
 ### Issue: Database Connection Error
+
 **Solution:**
+
 - Wait 2-3 minutes for database to fully initialize
 - Check `DATABASE_URL` environment variable is auto-set
 - Restart backend service
 
 ### Issue: Frontend Can't Connect to Backend
+
 **Solution:**
+
 - Check CORS settings (should allow all origins in code)
 - Verify `NEXT_PUBLIC_API_URL` environment variable
 - Check backend logs for errors
 
 ### Issue: "Service Unavailable" After Some Time
+
 **Solution:**
+
 - Free tier services sleep after 15 minutes of inactivity
 - First request after sleep takes ~30 seconds to wake up
 - Keep demo page open during presentation
@@ -158,12 +177,12 @@ Should return sample soldiers data.
 
 ## 💰 Cost Breakdown
 
-| Resource | Free Tier | Paid Tier |
-|----------|-----------|-----------|
-| **Backend** | Free (750 hrs/month) | $7/month |
-| **Frontend** | Free (100 GB bandwidth) | $7/month |
-| **Database** | **Free for 90 days** | $7/month |
-| **Total** | **$0 for 90 days** | ~$21/month |
+| Resource     | Free Tier               | Paid Tier  |
+| ------------ | ----------------------- | ---------- |
+| **Backend**  | Free (750 hrs/month)    | $7/month   |
+| **Frontend** | Free (100 GB bandwidth) | $7/month   |
+| **Database** | **Free for 90 days**    | $7/month   |
+| **Total**    | **$0 for 90 days**      | ~$21/month |
 
 **For hackathons:** 90 days is MORE than enough! 🎉
 
@@ -188,12 +207,14 @@ git push origin main
 ## 📊 Monitoring
 
 ### View Logs:
+
 1. Go to Render Dashboard
 2. Click on service name
 3. Click **"Logs"** tab
 4. See real-time application logs
 
 ### Performance Metrics:
+
 - Click **"Metrics"** tab to see:
   - CPU usage
   - Memory usage
@@ -205,11 +226,13 @@ git push origin main
 ## 🎓 Advanced Configuration
 
 ### Custom Domain (Optional):
+
 1. In service settings, go to **"Settings"** → **"Custom Domains"**
 2. Add your domain
 3. Update DNS records as instructed
 
 ### Environment-Specific Settings:
+
 ```python
 # backend/backend.py automatically detects environment
 if os.getenv("DATABASE_URL"):
@@ -221,6 +244,7 @@ else:
 ```
 
 ### Scale Up for Production:
+
 - Upgrade to paid tiers for:
   - ✅ No sleep on inactivity
   - ✅ Faster response times
@@ -232,10 +256,12 @@ else:
 ## 🆘 Support
 
 ### Render Documentation:
+
 - [Render Docs](https://render.com/docs)
 - [PostgreSQL Guide](https://render.com/docs/databases)
 
 ### Project Issues:
+
 - Check GitHub repository issues
 - Review application logs in Render
 
@@ -246,12 +272,14 @@ else:
 Your application is now live and accessible from anywhere!
 
 **Share these URLs:**
+
 - 🌐 Frontend: `https://military-hierarchy-frontend-xxxx.onrender.com`
 - 🔧 API Docs: `https://military-hierarchy-backend-xxxx.onrender.com/docs`
 
 **Perfect for:**
+
 - ✅ Hackathon demos
-- ✅ Portfolio showcases  
+- ✅ Portfolio showcases
 - ✅ Client presentations
 - ✅ Team testing
 
