@@ -7,7 +7,7 @@
 // In production (Render), this will be set to the backend URL
 // In local development, defaults to localhost:8000
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  process.env.NEXT_PUBLIC_API_URL || "https://military-hierarchy-backend.onrender.com";
 
 /**
  * API endpoint helper
