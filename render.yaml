@@ -4,7 +4,7 @@ services:
     name: military-hierarchy-backend
     runtime: python
     plan: free
-    buildCommand: pip install -r backend/requirements.txt && python scripts/render_build.sh
+    buildCommand: pip install -r backend/requirements.txt && bash scripts/render_build.sh
     startCommand: cd backend && gunicorn backend:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
     envVars:
       - key: PYTHON_VERSION
