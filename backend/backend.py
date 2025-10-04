@@ -422,101 +422,76 @@ async def root():
 @app.get("/units")
 async def get_units():
     """Get all military units."""
-    conn = get_db_connection()
-    c = conn.cursor()
-    c.execute("SELECT * FROM units ORDER BY level, name")
-    rows = c.fetchall()
-    conn.close()
+    rows = execute_query(
+        "SELECT * FROM units ORDER BY level, name", 
+        fetch_all=True
+    )
     
-    columns = ["unit_id", "name", "parent_unit_id", "level"]
-    return {"units": [dict(zip(columns, row)) for row in rows]}
+    return {"units": rows if rows else []}
 
 @app.get("/units/{unit_id}/soldiers")
 async def get_soldiers_by_unit(unit_id: str):
     """Get all soldiers in a specific unit."""
-    conn = get_db_connection()
-    c = conn.cursor()
-    c.execute("""
+    rows = execute_query("""
         SELECT s.*, u.name as unit_name 
         FROM soldiers s 
         JOIN units u ON s.unit_id = u.unit_id 
         WHERE s.unit_id = ?
         ORDER BY s.rank, s.name
-    """, (unit_id,))
-    rows = c.fetchall()
-    conn.close()
+    """, (unit_id,), fetch_all=True)
     
-    columns = ["soldier_id", "name", "rank", "unit_id", "device_id", "unit_name"]
-    return {"soldiers": [dict(zip(columns, row)) for row in rows]}
+    return {"soldiers": rows if rows else []}
 
 @app.get("/soldiers")
 async def get_all_soldiers():
     """Get all soldiers."""
-    conn = get_db_connection()
-    c = conn.cursor()
-    c.execute("""
+    rows = execute_query("""
         SELECT s.*, u.name as unit_name, u.level as unit_level
         FROM soldiers s 
         JOIN units u ON s.unit_id = u.unit_id 
         ORDER BY u.level, s.rank, s.name
-    """)
-    rows = c.fetchall()
-    conn.close()
+    """, fetch_all=True)
     
-    columns = ["soldier_id", "name", "rank", "unit_id", "device_id", "unit_name", "unit_level"]
-    return {"soldiers": [dict(zip(columns, row)) for row in rows]}
+    return {"soldiers": rows if rows else []}
 
 @app.get("/hierarchy")
 async def get_hierarchy():
     """Get the complete military hierarchy with nested structure."""
-    conn = get_db_connection()
-    c = conn.cursor()
-    
     # Get all units with their hierarchy information
-    c.execute("""
+    units = execute_query("""
         SELECT u.unit_id, u.name, u.parent_unit_id, u.level, u.created_at
         FROM units u
         ORDER BY u.level, u.name
-    """)
-    units = c.fetchall()
+    """, fetch_all=True)
     
     # Get all soldiers grouped by unit
-    c.execute("""
+    soldiers = execute_query("""
         SELECT s.soldier_id, s.name, s.rank, s.unit_id, s.device_id, s.status, s.created_at, s.last_seen
         FROM soldiers s
         ORDER BY s.unit_id, s.name
-    """)
-    soldiers = c.fetchall()
+    """, fetch_all=True)
     
-    conn.close()
+    if not units:
+        return {"hierarchy": []}
     
     # Group soldiers by unit
     soldiers_by_unit = {}
     for soldier in soldiers:
-        unit_id = soldier[3]
+        unit_id = soldier.get("unit_id")
         if unit_id not in soldiers_by_unit:
             soldiers_by_unit[unit_id] = []
-        soldiers_by_unit[unit_id].append({
-            "soldier_id": soldier[0],
-            "name": soldier[1],
-            "rank": soldier[2],
-            "unit_id": soldier[3],
-            "device_id": soldier[4],
-            "status": soldier[5],
-            "created_at": soldier[6],
-            "last_seen": soldier[7]
-        })
+        soldiers_by_unit[unit_id].append(soldier)
     
     # Build hierarchy structure
     hierarchy = []
     for unit in units:
         unit_data = {
-            "unit_id": unit[0],
-            "name": unit[1],
-            "parent_unit_id": unit[2],
-            "level": unit[3],
-            "created_at": unit[4],
-            "soldiers": soldiers_by_unit.get(unit[0], [])
+            "unit_id": unit.get("unit_id"),
+            "name": unit.get("name"),
+            "parent_unit_id": unit.get("parent_unit_id"),
+            "level": unit.get("level"),
+            "created_at": unit.get("created_at"),
+            "soldiers": soldiers_by_unit.get(unit.get("unit_id"), [])
         }
         hierarchy.append(unit_data)
     
@@ -525,61 +500,34 @@ async def get_hierarchy():
 @app.get("/units/{unit_id}/soldiers")
 async def get_unit_soldiers(unit_id: str):
     """Get all soldiers in a specific unit."""
-    conn = get_db_connection()
-    c = conn.cursor()
-    
-    c.execute("""
+    soldiers = execute_query("""
         SELECT s.soldier_id, s.name, s.rank, s.unit_id, s.device_id, s.status, s.created_at, s.last_seen
         FROM soldiers s
         WHERE s.unit_id = ?
         ORDER BY s.name
-    """, (unit_id,))
+    """, (unit_id,), fetch_all=True)
     
-    soldiers = c.fetchall()
-    conn.close()
-    
-    return {
-        "soldiers": [
-            {
-                "soldier_id": s[0],
-                "name": s[1],
-                "rank": s[2],
-                "unit_id": s[3],
-                "device_id": s[4],
-                "status": s[5],
-                "created_at": s[6],
-                "last_seen": s[7]
-            }
-            for s in soldiers
-        ]
-    }
+    return {"soldiers": soldiers if soldiers else []}
 
 @app.get("/soldiers/{soldier_id}/raw_inputs")
 async def get_soldier_raw_inputs(soldier_id: str, limit: int = 500):
     """Get raw inputs from a specific soldier."""
-    conn = get_db_connection()
-    c = conn.cursor()
-    c.execute("""
+    rows = execute_query("""
         SELECT * FROM soldier_raw_inputs 
         WHERE soldier_id = ? 
         ORDER BY timestamp DESC 
         LIMIT ?
-    """, (soldier_id, limit))
-    rows = c.fetchall()
-    conn.close()
+    """, (soldier_id, limit), fetch_all=True)
     
-    columns = ["input_id", "soldier_id", "timestamp", "raw_text", "raw_audio_ref"]
     return {
         "soldier_id": soldier_id, 
-        "raw_inputs": [dict(zip(columns, row)) for row in rows]
+        "raw_inputs": rows if rows else []
     }
 
 @app.get("/soldiers/{soldier_id}/reports")
 async def get_soldier_reports(soldier_id: str, limit: int = 500):
     """Get structured reports from a specific soldier."""
-    conn = get_db_connection()
-    c = conn.cursor()
-    c.execute("""
+    rows = execute_query("""
         SELECT r.*, s.name as soldier_name, u.name as unit_name
         FROM reports r
         JOIN soldiers s ON r.soldier_id = s.soldier_id
@@ -587,36 +535,26 @@ async def get_soldier_reports(soldier_id: str, limit: int = 500):
         WHERE r.soldier_id = ? 
         ORDER BY r.timestamp DESC 
         LIMIT ?
-    """, (soldier_id, limit))
-    rows = c.fetchall()
-    conn.close()
+    """, (soldier_id, limit), fetch_all=True)
     
-    columns = ["report_id", "soldier_id", "unit_id", "timestamp", "report_type", 
-               "structured_json", "confidence", "soldier_name", "unit_name"]
     return {
         "soldier_id": soldier_id, 
-        "reports": [dict(zip(columns, row)) for row in rows]
+        "reports": rows if rows else []
     }
 
 @app.get("/reports")
 async def get_all_reports(limit: int = 1000):
     """Get all structured reports."""
-    conn = get_db_connection()
-    c = conn.cursor()
-    c.execute("""
+    rows = execute_query("""
         SELECT r.*, s.name as soldier_name, u.name as unit_name
         FROM reports r
         JOIN soldiers s ON r.soldier_id = s.soldier_id
         JOIN units u ON r.unit_id = u.unit_id
         ORDER BY r.timestamp DESC 
         LIMIT ?
-    """, (limit,))
-    rows = c.fetchall()
-    conn.close()
+    """, (limit,), fetch_all=True)
     
-    columns = ["report_id", "soldier_id", "unit_id", "timestamp", "report_type", 
-               "structured_json", "confidence", "soldier_name", "unit_name"]
-    return {"reports": [dict(zip(columns, row)) for row in rows]}
+    return {"reports": rows if rows else []}
 
 @app.post("/soldiers/{soldier_id}/reports")
 async def create_report(soldier_id: str, report_data: Dict[str, Any]):
@@ -901,13 +839,25 @@ async def ai_chat(chat_request: ChatMessage):
         else:
             report_count = len(reports)
             
-            # Build a simple, direct prompt with all report data
-            prompt = f"""You are a military intelligence analyst AI. Analyze these battlefield reports and answer the user's question.
+            # Build a comprehensive prompt with clear instructions
+            prompt = f"""You are an experienced military intelligence analyst AI with expertise in battlefield analysis, threat assessment, and tactical recommendations. Your role is to provide actionable intelligence insights to military commanders and staff.
 
-Node: {node.get('name', 'Unknown')}
-User Question: {message}
+CONTEXT:
+- Unit: {node.get('name', 'Unknown')}
+- Current Analysis: {report_count} battlefield reports
+- User Role: Military commander/staff officer
 
-Reports ({report_count} total):
+USER QUESTION: {message}
+
+ANALYSIS INSTRUCTIONS:
+1. Synthesize patterns across multiple reports
+2. Identify key threats, opportunities, and tactical considerations
+3. Provide specific, actionable recommendations
+4. Use proper military terminology (METT-TC framework when applicable)
+5. Highlight time-sensitive information requiring immediate action
+6. Assess confidence levels in your analysis
+
+BATTLEFIELD REPORTS ({report_count} total):
 """
             
             # Add all reports with full details (limit to 50 to avoid token overload)
@@ -934,7 +884,13 @@ Reports ({report_count} total):
             if report_count > 50:
                 prompt += f"\n... and {report_count - 50} more reports (showing first 50)\n"
             
-            prompt += "\n\nProvide a direct, clear answer using military terminology. Be concise and actionable."
+            prompt += "\n\nRESPONSE FORMAT:\n"
+            prompt += "- Lead with executive summary (2-3 sentences)\n"
+            prompt += "- Provide detailed analysis with supporting evidence from reports\n"
+            prompt += "- Include tactical recommendations with priority levels\n"
+            prompt += "- Highlight any immediate actions required\n"
+            prompt += "- Use military terminology and doctrine appropriately\n"
+            prompt += "- Be concise but comprehensive - focus on actionable intelligence"
             
             try:
                 # Call Gemini API with safety settings to avoid blocks
