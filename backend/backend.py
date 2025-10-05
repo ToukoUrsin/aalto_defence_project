@@ -54,7 +54,20 @@ def get_db_connection():
     """Get a database connection (PostgreSQL or SQLite based on environment)."""
     if USE_POSTGRES:
         # PostgreSQL connection
-        return psycopg2.connect(DATABASE_URL)
+        conn = psycopg2.connect(DATABASE_URL)
+        # Wrap cursor to auto-convert ? to %s for PostgreSQL
+        original_cursor = conn.cursor
+        def cursor_wrapper(*args, **kwargs):
+            cursor = original_cursor(*args, **kwargs)
+            original_execute = cursor.execute
+            def execute_wrapper(query, params=None):
+                # Convert SQLite ? placeholders to PostgreSQL %s
+                converted_query = query.replace("?", "%s")
+                return original_execute(converted_query, params)
+            cursor.execute = execute_wrapper
+            return cursor
+        conn.cursor = cursor_wrapper
+        return conn
     else:
         # SQLite connection
         conn = sqlite3.connect(DB_PATH)
