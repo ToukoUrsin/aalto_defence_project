@@ -157,7 +157,9 @@ CREATE TABLE IF NOT EXISTS frago_sequence (
 );
 
 -- SUGGESTIONS TABLE (AI-Generated Smart Notifications)
-CREATE TABLE IF NOT EXISTS suggestions (
+-- Drop and recreate to ensure clean schema (fixes column order issues from old deployments)
+DROP TABLE IF EXISTS suggestions CASCADE;
+CREATE TABLE suggestions (
     suggestion_id TEXT PRIMARY KEY,
     suggestion_type TEXT NOT NULL,
     status TEXT DEFAULT 'pending',
