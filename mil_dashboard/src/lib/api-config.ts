@@ -1,16 +1,10 @@
 /**
  * API Configuration
- * Automatically uses the correct API URL for local development or production
+ * Points to deployed Render backend
  */
 
-// For Next.js, environment variables must be prefixed with NEXT_PUBLIC_ to be available in the browser
-// In production (Render), this will be set to the backend URL
-// In local development, defaults to localhost:8000
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || 
-  (typeof window !== 'undefined' && window.location.hostname.includes('onrender.com')
-    ? "https://military-hierarchy-backend.onrender.com"
-    : "http://localhost:8000");
+// Always use the deployed backend URL
+export const API_BASE_URL = "https://military-hierarchy-backend.onrender.com";
 
 /**
  * API endpoint helper
