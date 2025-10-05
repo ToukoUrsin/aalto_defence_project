@@ -107,7 +107,6 @@ CREATE TABLE IF NOT EXISTS comm_log (
 -- FRAGOS TABLE (Fragmentary Orders)
 CREATE TABLE IF NOT EXISTS fragos (
     frago_id TEXT PRIMARY KEY,
-    frago_number INTEGER,
     unit_id TEXT NOT NULL,
     task TEXT,
     assigned_by TEXT,
@@ -115,13 +114,29 @@ CREATE TABLE IF NOT EXISTS fragos (
     status TEXT DEFAULT 'pending',
     priority TEXT DEFAULT 'medium',
     deadline TIMESTAMP,
-    suggested_fields TEXT,
-    final_fields TEXT,
-    formatted_document TEXT,
-    source_reports TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(unit_id) REFERENCES units(unit_id)
 );
+
+-- Add missing columns to fragos table if they don't exist
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fragos' AND column_name='frago_number') THEN
+        ALTER TABLE fragos ADD COLUMN frago_number INTEGER;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fragos' AND column_name='suggested_fields') THEN
+        ALTER TABLE fragos ADD COLUMN suggested_fields TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fragos' AND column_name='final_fields') THEN
+        ALTER TABLE fragos ADD COLUMN final_fields TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fragos' AND column_name='formatted_document') THEN
+        ALTER TABLE fragos ADD COLUMN formatted_document TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='fragos' AND column_name='source_reports') THEN
+        ALTER TABLE fragos ADD COLUMN source_reports TEXT;
+    END IF;
+END $$;
 
 -- FRAGO SEQUENCE TABLE (Legacy compatibility)
 CREATE TABLE IF NOT EXISTS frago_sequence (
