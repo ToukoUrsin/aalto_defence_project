@@ -1,4 +1,9 @@
 import sqlite3
+import sys
+from pathlib import Path
+
+# Add the tools directory to the path
+sys.path.insert(0, str(Path(__file__).parent.parent / "tools"))
 from schema_definition import MilitaryHierarchySchema
 
 def initialize_database():
