@@ -58,6 +58,10 @@ def get_db_connection():
         # Wrap cursor to auto-convert ? to %s for PostgreSQL
         original_cursor = conn.cursor
         def cursor_wrapper(*args, **kwargs):
+            # Use RealDictCursor by default for PostgreSQL to return dict-like rows
+            if 'cursor_factory' not in kwargs:
+                from psycopg2.extras import RealDictCursor
+                kwargs['cursor_factory'] = RealDictCursor
             cursor = original_cursor(*args, **kwargs)
             original_execute = cursor.execute
             def execute_wrapper(query, params=None):
@@ -73,6 +77,17 @@ def get_db_connection():
         conn = sqlite3.connect(DB_PATH)
         conn.row_factory = sqlite3.Row  # Return rows as dictionaries
         return conn
+
+def rows_to_dict(rows):
+    """Convert database rows to list of dictionaries (works with both SQLite and PostgreSQL)."""
+    if not rows:
+        return []
+    if USE_POSTGRES:
+        # PostgreSQL with RealDictCursor already returns dict-like objects
+        return [dict(row) for row in rows]
+    else:
+        # SQLite with row_factory=sqlite3.Row returns Row objects
+        return [dict(row) for row in rows]
 
 def execute_query(query: str, params: tuple = (), fetch_one: bool = False, fetch_all: bool = False):
     """
@@ -441,8 +456,7 @@ async def get_units():
     rows = c.fetchall()
     conn.close()
     
-    columns = ["unit_id", "name", "parent_unit_id", "level"]
-    return {"units": [dict(zip(columns, row)) for row in rows]}
+    return {"units": rows_to_dict(rows)}
 
 @app.get("/units/{unit_id}/soldiers")
 async def get_soldiers_by_unit(unit_id: str):
@@ -459,8 +473,7 @@ async def get_soldiers_by_unit(unit_id: str):
     rows = c.fetchall()
     conn.close()
     
-    columns = ["soldier_id", "name", "rank", "unit_id", "device_id", "unit_name"]
-    return {"soldiers": [dict(zip(columns, row)) for row in rows]}
+    return {"soldiers": rows_to_dict(rows)}
 
 @app.get("/soldiers")
 async def get_all_soldiers():
@@ -476,8 +489,7 @@ async def get_all_soldiers():
     rows = c.fetchall()
     conn.close()
     
-    columns = ["soldier_id", "name", "rank", "unit_id", "device_id", "unit_name", "unit_level"]
-    return {"soldiers": [dict(zip(columns, row)) for row in rows]}
+    return {"soldiers": rows_to_dict(rows)}
 
 @app.get("/hierarchy")
 async def get_hierarchy():
@@ -581,10 +593,9 @@ async def get_soldier_raw_inputs(soldier_id: str, limit: int = 500):
     rows = c.fetchall()
     conn.close()
     
-    columns = ["input_id", "soldier_id", "timestamp", "raw_text", "raw_audio_ref"]
     return {
         "soldier_id": soldier_id, 
-        "raw_inputs": [dict(zip(columns, row)) for row in rows]
+        "raw_inputs": rows_to_dict(rows)
     }
 
 @app.get("/soldiers/{soldier_id}/reports")
@@ -604,11 +615,9 @@ async def get_soldier_reports(soldier_id: str, limit: int = 500):
     rows = c.fetchall()
     conn.close()
     
-    columns = ["report_id", "soldier_id", "unit_id", "timestamp", "report_type", 
-               "structured_json", "confidence", "soldier_name", "unit_name"]
     return {
         "soldier_id": soldier_id, 
-        "reports": [dict(zip(columns, row)) for row in rows]
+        "reports": rows_to_dict(rows)
     }
 
 @app.get("/reports")
@@ -627,9 +636,7 @@ async def get_all_reports(limit: int = 1000):
     rows = c.fetchall()
     conn.close()
     
-    columns = ["report_id", "soldier_id", "unit_id", "timestamp", "report_type", 
-               "structured_json", "confidence", "soldier_name", "unit_name"]
-    return {"reports": [dict(zip(columns, row)) for row in rows]}
+    return {"reports": rows_to_dict(rows)}
 
 @app.post("/soldiers/{soldier_id}/reports")
 async def create_report(soldier_id: str, report_data: Dict[str, Any]):
@@ -843,7 +850,15 @@ async def get_military_hierarchy():
     # Build hierarchy structure
     units_dict = {}
     for unit in units:
-        unit_id, name, parent_id, level = unit
+        # Handle both PostgreSQL (dict) and SQLite (tuple) row types
+        if isinstance(unit, dict):
+            unit_id = unit['unit_id']
+            name = unit['name']
+            parent_id = unit['parent_unit_id']
+            level = unit['level']
+        else:
+            unit_id, name, parent_id, level = unit
+            
         units_dict[unit_id] = {
             "unit_id": unit_id,
             "name": name,
@@ -854,9 +869,14 @@ async def get_military_hierarchy():
         }
     
     # Add soldiers to units
-    soldier_columns = ["soldier_id", "name", "rank", "unit_id", "device_id"]
     for soldier in soldiers:
-        soldier_data = dict(zip(soldier_columns, soldier))
+        # Handle both PostgreSQL (dict) and SQLite (tuple) row types
+        if isinstance(soldier, dict):
+            soldier_data = dict(soldier)
+        else:
+            soldier_columns = ["soldier_id", "name", "rank", "unit_id", "device_id"]
+            soldier_data = dict(zip(soldier_columns, soldier))
+        
         unit_id = soldier_data["unit_id"]
         if unit_id in units_dict:
             units_dict[unit_id]["soldiers"].append(soldier_data)
@@ -1380,7 +1400,9 @@ async def generate_casevac(request: Request):
         source_report_ids = body.get("source_report_ids", [])
         
         conn = get_db_connection()
-        conn.execute("PRAGMA busy_timeout = 5000")  # Wait up to 5 seconds for locks
+        # SQLite-only: PRAGMA not needed for PostgreSQL
+        if not USE_POSTGRES:
+            conn.execute("PRAGMA busy_timeout = 5000")
         c = conn.cursor()
         
         # Get next CASEVAC number
@@ -1706,7 +1728,9 @@ async def generate_eoincrep(request: Request):
         source_report_ids = body.get("source_report_ids", [])
         
         conn = get_db_connection()
-        conn.execute("PRAGMA busy_timeout = 5000")
+        # SQLite-only: PRAGMA not needed for PostgreSQL
+        if not USE_POSTGRES:
+            conn.execute("PRAGMA busy_timeout = 5000")
         c = conn.cursor()
         
         # Get next EOINCREP number
@@ -1914,16 +1938,14 @@ async def get_suggestions(status: str = "pending", unit_id: Optional[str] = None
         c.execute(query, params)
         rows = c.fetchall()
         
-        # Get column names
-        columns = [description[0] for description in c.description]
-        
-        # Convert to list of dicts
+        # Convert to list of dicts and parse JSON fields
         suggestions = []
         for row in rows:
-            suggestion = dict(zip(columns, row))
+            suggestion = dict(row) if isinstance(row, dict) else dict(row)
             # Parse JSON fields
-            suggestion['source_reports'] = json.loads(suggestion['source_reports'])
-            if suggestion.get('suggested_fields'):
+            if isinstance(suggestion.get('source_reports'), str):
+                suggestion['source_reports'] = json.loads(suggestion['source_reports'])
+            if suggestion.get('suggested_fields') and isinstance(suggestion['suggested_fields'], str):
                 suggestion['suggested_fields'] = json.loads(suggestion['suggested_fields'])
             suggestions.append(suggestion)
         
@@ -1983,8 +2005,7 @@ async def create_suggestion_draft(suggestion_id: str):
         if not row:
             raise HTTPException(status_code=404, detail="Suggestion not found")
         
-        columns = [description[0] for description in c.description]
-        suggestion = dict(zip(columns, row))
+        suggestion = dict(row) if isinstance(row, dict) else dict(row)
         
         # Update suggestion status
         c.execute("""
