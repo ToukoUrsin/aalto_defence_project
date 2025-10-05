@@ -63,15 +63,27 @@ CREATE TABLE IF NOT EXISTS reports (
     report_type TEXT NOT NULL,
     structured_json TEXT NOT NULL,
     confidence REAL NOT NULL,
-    source_input_id TEXT,
-    status TEXT DEFAULT 'generated',
-    reviewed_by TEXT,
-    reviewed_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(soldier_id) REFERENCES soldiers(soldier_id),
-    FOREIGN KEY(unit_id) REFERENCES units(unit_id),
-    FOREIGN KEY(source_input_id) REFERENCES soldier_raw_inputs(input_id)
+    FOREIGN KEY(unit_id) REFERENCES units(unit_id)
 );
+
+-- Add optional columns to reports table if they don't exist
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='reports' AND column_name='source_input_id') THEN
+        ALTER TABLE reports ADD COLUMN source_input_id TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='reports' AND column_name='status') THEN
+        ALTER TABLE reports ADD COLUMN status TEXT DEFAULT 'generated';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='reports' AND column_name='reviewed_by') THEN
+        ALTER TABLE reports ADD COLUMN reviewed_by TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='reports' AND column_name='reviewed_at') THEN
+        ALTER TABLE reports ADD COLUMN reviewed_at TIMESTAMP;
+    END IF;
+END $$;
 
 -- DEVICE STATUS TABLE
 CREATE TABLE IF NOT EXISTS device_status (
@@ -148,17 +160,34 @@ CREATE TABLE IF NOT EXISTS frago_sequence (
 CREATE TABLE IF NOT EXISTS suggestions (
     suggestion_id TEXT PRIMARY KEY,
     suggestion_type TEXT NOT NULL,
-    urgency TEXT NOT NULL,
-    reason TEXT NOT NULL,
-    confidence REAL NOT NULL,
-    source_reports TEXT NOT NULL,
     status TEXT DEFAULT 'pending',
     unit_id TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    reviewed_at TIMESTAMP,
-    reviewed_by TEXT,
     FOREIGN KEY(unit_id) REFERENCES units(unit_id)
 );
+
+-- Add missing columns to suggestions table if they don't exist
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='suggestions' AND column_name='urgency') THEN
+        ALTER TABLE suggestions ADD COLUMN urgency TEXT NOT NULL DEFAULT 'MEDIUM';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='suggestions' AND column_name='reason') THEN
+        ALTER TABLE suggestions ADD COLUMN reason TEXT NOT NULL DEFAULT 'Automated suggestion';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='suggestions' AND column_name='confidence') THEN
+        ALTER TABLE suggestions ADD COLUMN confidence REAL NOT NULL DEFAULT 0.8;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='suggestions' AND column_name='source_reports') THEN
+        ALTER TABLE suggestions ADD COLUMN source_reports TEXT NOT NULL DEFAULT '[]';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='suggestions' AND column_name='reviewed_at') THEN
+        ALTER TABLE suggestions ADD COLUMN reviewed_at TIMESTAMP;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='suggestions' AND column_name='reviewed_by') THEN
+        ALTER TABLE suggestions ADD COLUMN reviewed_by TEXT;
+    END IF;
+END $$;
 
 -- REPORT SEQUENCES TABLE (Auto-incrementing report numbers)
 CREATE TABLE IF NOT EXISTS report_sequences (
