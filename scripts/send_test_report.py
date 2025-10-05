@@ -74,7 +74,7 @@ if __name__ == "__main__":
         
         print("\n✅ All reports sent successfully!")
         print("🔍 Check the dashboard at http://localhost:3000")
-        print("📊 View all reports: https://military-hierarchy-backend.onrender.com//reports")
+        print("📊 View all reports: https://military-hierarchy-backend.onrender.com/reports")
         
     except Exception as e:
         print(f"❌ Error sending reports: {e}")

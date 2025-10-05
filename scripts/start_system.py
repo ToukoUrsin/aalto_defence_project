@@ -52,7 +52,7 @@ def main():
     # Start backend server
     print("🌐 Starting FastAPI backend server...")
     print("   Backend will be available at: https://military-hierarchy-backend.onrender.com/")
-    print("   API docs will be available at: https://military-hierarchy-backend.onrender.com//docs")
+    print("   API docs will be available at: https://military-hierarchy-backend.onrender.com/docs")
     print("")
     
     # Start the backend

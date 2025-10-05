@@ -77,7 +77,7 @@ export function EOINCREPBuilder({
     setSuggesting(true);
     try {
       const response = await axios.post(
-        "https://military-hierarchy-backend.onrender.com//eoincrep/suggest",
+        "https://military-hierarchy-backend.onrender.com/eoincrep/suggest",
         {
           unit_id: unitId,
           unit_name: unitName,
@@ -115,7 +115,7 @@ export function EOINCREPBuilder({
         .map((r) => r.report_id);
 
       const response = await axios.post(
-        "https://military-hierarchy-backend.onrender.com//eoincrep/generate",
+        "https://military-hierarchy-backend.onrender.com/eoincrep/generate",
         {
           unit_id: unitId,
           unit_name: unitName,

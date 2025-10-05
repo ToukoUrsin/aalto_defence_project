@@ -46,7 +46,7 @@ export function FRAGOBuilder({
     setSuggesting(true);
     try {
       const response = await fetch(
-        "https://military-hierarchy-backend.onrender.com//frago/suggest",
+        "https://military-hierarchy-backend.onrender.com/frago/suggest",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -79,7 +79,7 @@ export function FRAGOBuilder({
       const reportIds = reports.map((r) => r.report_id).filter(Boolean);
 
       const response = await fetch(
-        "https://military-hierarchy-backend.onrender.com//frago/generate",
+        "https://military-hierarchy-backend.onrender.com/frago/generate",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

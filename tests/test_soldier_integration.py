@@ -81,7 +81,7 @@ def test_soldier_input():
     print("\n[INFO] Check your backend logs to verify messages were received:")
     print("   - Backend should show soldier inputs in the database")
     print("   - Backend should show heartbeat messages")
-    print("   - Check https://military-hierarchy-backend.onrender.com//reports for new data")
+    print("   - Check https://military-hierarchy-backend.onrender.com/reports for new data")
 
 def test_backend_connection():
     """Test if backend is running and accessible."""
@@ -89,7 +89,7 @@ def test_backend_connection():
     
     try:
         import requests
-        response = requests.get("https://military-hierarchy-backend.onrender.com//")
+        response = requests.get("https://military-hierarchy-backend.onrender.com/")
         if response.status_code == 200:
             print("[OK] Backend is running and accessible")
             return True
@@ -136,7 +136,7 @@ def main():
     
     print("\n[INFO] Next steps:")
     print("   1. Check backend logs for received messages")
-    print("   2. Visit https://military-hierarchy-backend.onrender.com//reports to see new data")
+    print("   2. Visit https://military-hierarchy-backend.onrender.com/reports to see new data")
     print("   3. Test with actual soldier assistant: cd soldier_assistant && python test_simple.py")
 
 if __name__ == "__main__":

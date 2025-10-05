@@ -21,10 +21,10 @@ $body = @'
 '@
 
 Write-Host "Testing LOCAL backend..." -ForegroundColor Cyan
-Write-Host "URL: https://military-hierarchy-backend.onrender.com//ai/chat" -ForegroundColor Yellow
+Write-Host "URL: https://military-hierarchy-backend.onrender.com/ai/chat" -ForegroundColor Yellow
 
 try {
-    $response = Invoke-RestMethod -Uri "https://military-hierarchy-backend.onrender.com//ai/chat" `
+    $response = Invoke-RestMethod -Uri "https://military-hierarchy-backend.onrender.com/ai/chat" `
         -Method Post `
         -Body $body `
         -ContentType "application/json" `

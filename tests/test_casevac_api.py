@@ -39,7 +39,7 @@ def test_casevac_suggest():
     
     try:
         response = requests.post(
-            "https://military-hierarchy-backend.onrender.com//casevac/suggest",
+            "https://military-hierarchy-backend.onrender.com/casevac/suggest",
             json=test_payload,
             timeout=30
         )

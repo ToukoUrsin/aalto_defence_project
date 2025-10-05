@@ -94,10 +94,10 @@ export function DetailPanel({ selectedNode }: DetailPanelProps) {
         // Fetch soldier-specific data
         const [inputsResponse, reportsResponse] = await Promise.all([
           fetch(
-            `https://military-hierarchy-backend.onrender.com//soldiers/${selectedNode.soldier_id}/raw_inputs`
+            `https://military-hierarchy-backend.onrender.com/soldiers/${selectedNode.soldier_id}/raw_inputs`
           ),
           fetch(
-            `https://military-hierarchy-backend.onrender.com//soldiers/${selectedNode.soldier_id}/reports`
+            `https://military-hierarchy-backend.onrender.com/soldiers/${selectedNode.soldier_id}/reports`
           ),
         ]);
 
@@ -109,7 +109,7 @@ export function DetailPanel({ selectedNode }: DetailPanelProps) {
       } else {
         // For units, fetch all reports from soldiers in that unit
         const response = await fetch(
-          `https://military-hierarchy-backend.onrender.com//units/${selectedNode.unit_id}/soldiers`
+          `https://military-hierarchy-backend.onrender.com/units/${selectedNode.unit_id}/soldiers`
         );
         const soldiersData = await response.json();
 
@@ -117,7 +117,7 @@ export function DetailPanel({ selectedNode }: DetailPanelProps) {
           // Fetch reports for all soldiers in the unit
           const reportPromises = soldiersData.soldiers.map((soldier: any) =>
             fetch(
-              `https://military-hierarchy-backend.onrender.com//soldiers/${soldier.soldier_id}/reports`
+              `https://military-hierarchy-backend.onrender.com/soldiers/${soldier.soldier_id}/reports`
             )
           );
 

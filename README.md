@@ -85,7 +85,7 @@ The dashboard will run on `http://localhost:3000` (or 3001 if 3000 is in use)
 ### 3. **Access the System**
 
 - **Backend API**: https://military-hierarchy-backend.onrender.com/
-- **API Docs**: https://military-hierarchy-backend.onrender.com//docs
+- **API Docs**: https://military-hierarchy-backend.onrender.com/docs
 - **Dashboard**: http://localhost:3000
 
 ## 📋 Features

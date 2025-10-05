@@ -56,7 +56,7 @@ export function HierarchyTree({
   const fetchHierarchy = async () => {
     try {
       const response = await fetch(
-        "https://military-hierarchy-backend.onrender.com//hierarchy"
+        "https://military-hierarchy-backend.onrender.com/hierarchy"
       );
       const data = await response.json();
 

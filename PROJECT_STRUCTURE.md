@@ -124,7 +124,7 @@ tests\test_network_access.py
 ### **API Documentation:**
 
 - **File:** `docs/API_DOCUMENTATION.md`
-- **Live Docs:** `https://military-hierarchy-backend.onrender.com//docs`
+- **Live Docs:** `https://military-hierarchy-backend.onrender.com/docs`
 
 ### **Setup Guides:**
 

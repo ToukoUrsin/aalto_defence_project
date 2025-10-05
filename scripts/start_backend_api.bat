@@ -39,7 +39,7 @@ echo - Backend API: https://xxxxx.ngrok-free.dev
 echo.
 echo Local URL:
 echo - Backend API: https://military-hierarchy-backend.onrender.com/
-echo - API Documentation: https://military-hierarchy-backend.onrender.com//docs
+echo - API Documentation: https://military-hierarchy-backend.onrender.com/docs
 echo.
 echo IMPORTANT:
 echo - Use the ngrok URL for external POST requests

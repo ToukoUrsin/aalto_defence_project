@@ -28,7 +28,7 @@ timeout /t 3 /nobreak > nul
 echo.
 echo Step 4: Testing local services...
 echo Testing Backend API...
-curl -s https://military-hierarchy-backend.onrender.com// > nul 2>&1
+curl -s https://military-hierarchy-backend.onrender.com/ > nul 2>&1
 if %errorlevel% equ 0 (
     echo ✅ Backend API is running
 ) else (

@@ -83,7 +83,7 @@ export function AIChat({ selectedNode, reports }: AIChatProps) {
 
       // Call AI API (you'll need to implement this endpoint)
       const response = await fetch(
-        "https://military-hierarchy-backend.onrender.com//ai/chat",
+        "https://military-hierarchy-backend.onrender.com/ai/chat",
         {
           method: "POST",
           headers: {

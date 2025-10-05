@@ -40,8 +40,8 @@ export function AutoSuggestions({
     const fetchSuggestions = async () => {
       try {
         const url = unitId
-          ? `https://military-hierarchy-backend.onrender.com//api/suggestions?status=pending&unit_id=${unitId}`
-          : "https://military-hierarchy-backend.onrender.com//api/suggestions?status=pending";
+          ? `https://military-hierarchy-backend.onrender.com/api/suggestions?status=pending&unit_id=${unitId}`
+          : "https://military-hierarchy-backend.onrender.com/api/suggestions?status=pending";
 
         const response = await fetch(url);
         const data = await response.json();
@@ -65,7 +65,7 @@ export function AutoSuggestions({
     const reanalyzeReports = async () => {
       try {
         await fetch(
-          "https://military-hierarchy-backend.onrender.com//api/suggestions/reanalyze",
+          "https://military-hierarchy-backend.onrender.com/api/suggestions/reanalyze",
           {
             method: "POST",
           }
@@ -128,7 +128,7 @@ export function AutoSuggestions({
   const dismissSuggestion = async (suggestionId: string) => {
     try {
       await fetch(
-        `https://military-hierarchy-backend.onrender.com//api/suggestions/${suggestionId}`,
+        `https://military-hierarchy-backend.onrender.com/api/suggestions/${suggestionId}`,
         {
           method: "DELETE",
         }
@@ -146,7 +146,7 @@ export function AutoSuggestions({
     try {
       // Mark as draft_created
       await fetch(
-        `https://military-hierarchy-backend.onrender.com//api/suggestions/${suggestion.suggestion_id}/create-draft`,
+        `https://military-hierarchy-backend.onrender.com/api/suggestions/${suggestion.suggestion_id}/create-draft`,
         {
           method: "POST",
         }
