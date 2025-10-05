@@ -107,31 +107,48 @@ CREATE TABLE IF NOT EXISTS comm_log (
 -- FRAGOS TABLE (Fragmentary Orders)
 CREATE TABLE IF NOT EXISTS fragos (
     frago_id TEXT PRIMARY KEY,
+    frago_number INTEGER,
     unit_id TEXT NOT NULL,
-    task TEXT NOT NULL,
-    assigned_by TEXT NOT NULL,
-    assigned_at TIMESTAMP NOT NULL,
+    task TEXT,
+    assigned_by TEXT,
+    assigned_at TIMESTAMP,
     status TEXT DEFAULT 'pending',
     priority TEXT DEFAULT 'medium',
     deadline TIMESTAMP,
+    suggested_fields TEXT,
+    final_fields TEXT,
+    formatted_document TEXT,
+    source_reports TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(unit_id) REFERENCES units(unit_id)
 );
 
--- SUGGESTIONS TABLE (AI-Generated Suggestions)
+-- FRAGO SEQUENCE TABLE (Legacy compatibility)
+CREATE TABLE IF NOT EXISTS frago_sequence (
+    id INTEGER PRIMARY KEY DEFAULT 1,
+    next_number INTEGER NOT NULL DEFAULT 1
+);
+
+-- SUGGESTIONS TABLE (AI-Generated Smart Notifications)
 CREATE TABLE IF NOT EXISTS suggestions (
     suggestion_id TEXT PRIMARY KEY,
-    report_id TEXT NOT NULL,
-    unit_id TEXT,
     suggestion_type TEXT NOT NULL,
-    suggestion_text TEXT NOT NULL,
-    priority TEXT DEFAULT 'medium',
+    urgency TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    source_reports TEXT NOT NULL,
     status TEXT DEFAULT 'pending',
+    unit_id TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     reviewed_at TIMESTAMP,
     reviewed_by TEXT,
-    FOREIGN KEY(report_id) REFERENCES reports(report_id),
     FOREIGN KEY(unit_id) REFERENCES units(unit_id)
+);
+
+-- REPORT SEQUENCES TABLE (Auto-incrementing report numbers)
+CREATE TABLE IF NOT EXISTS report_sequences (
+    report_type TEXT PRIMARY KEY,
+    next_number INTEGER NOT NULL DEFAULT 1
 );
 
 -- INDEXES FOR PERFORMANCE
@@ -150,13 +167,27 @@ CREATE INDEX IF NOT EXISTS idx_device_status_soldier ON device_status(soldier_id
 CREATE INDEX IF NOT EXISTS idx_comm_log_timestamp ON comm_log(timestamp);
 CREATE INDEX IF NOT EXISTS idx_fragos_unit ON fragos(unit_id);
 CREATE INDEX IF NOT EXISTS idx_fragos_status ON fragos(status);
-CREATE INDEX IF NOT EXISTS idx_suggestions_report ON suggestions(report_id);
+CREATE INDEX IF NOT EXISTS idx_fragos_number ON fragos(frago_number);
 CREATE INDEX IF NOT EXISTS idx_suggestions_unit ON suggestions(unit_id);
 CREATE INDEX IF NOT EXISTS idx_suggestions_status ON suggestions(status);
+CREATE INDEX IF NOT EXISTS idx_suggestions_urgency ON suggestions(urgency);
+CREATE INDEX IF NOT EXISTS idx_suggestions_type ON suggestions(suggestion_type);
 """
 
 # Sample data for testing
 SAMPLE_DATA = """
+-- Initialize FRAGO sequence
+INSERT INTO frago_sequence (id, next_number) VALUES (1, 1)
+ON CONFLICT (id) DO NOTHING;
+
+-- Initialize report sequences
+INSERT INTO report_sequences (report_type, next_number) VALUES 
+    ('CASEVAC', 1),
+    ('EOINCREP', 1),
+    ('FRAGO', 1),
+    ('OPORD', 1)
+ON CONFLICT (report_type) DO NOTHING;
+
 -- Sample Units
 INSERT INTO units (unit_id, name, parent_unit_id, level) VALUES 
 ('BAT_1', '1st Infantry Battalion', NULL, 'Battalion'),
@@ -227,11 +258,11 @@ INSERT INTO fragos (frago_id, unit_id, task, assigned_by, assigned_at, status, p
 ('FRAGO_003', 'CO_B', 'Conduct area reconnaissance of sector 7', 'BAT_1', NOW() - INTERVAL '1 hour', 'pending', 'high', NOW() + INTERVAL '24 hours')
 ON CONFLICT (frago_id) DO NOTHING;
 
--- Sample Suggestions
-INSERT INTO suggestions (suggestion_id, report_id, unit_id, suggestion_type, suggestion_text, priority, status) VALUES 
-('SUGG_001', 'REPORT_001', 'PLT_1', 'CASEVAC', 'Recommend immediate helicopter evacuation. Coordinate with medical team for trauma surgery preparation.', 'high', 'pending'),
-('SUGG_002', 'REPORT_002', 'SQD_2', 'EOD', 'Deploy EOD team immediately. Establish 300m perimeter and reroute all traffic until device is cleared.', 'high', 'pending'),
-('SUGG_003', 'REPORT_004', 'CO_B', 'TACTICAL', 'Enemy reconnaissance detected. Recommend increased patrols and establish observation posts on high ground.', 'medium', 'pending')
+-- Sample Suggestions (Smart Notifications)
+INSERT INTO suggestions (suggestion_id, suggestion_type, urgency, reason, confidence, source_reports, unit_id, status) VALUES 
+('SUGG_001', 'CASEVAC', 'HIGH', 'Critical casualties detected requiring immediate evacuation', 0.95, '["REPORT_001"]', 'PLT_1', 'pending'),
+('SUGG_002', 'EOINCREP', 'HIGH', 'Explosive ordnance detected - EOD team required', 0.92, '["REPORT_002"]', 'SQD_2', 'pending'),
+('SUGG_003', 'EOINCREP', 'MEDIUM', 'Enemy contact reported - tactical assessment needed', 0.89, '["REPORT_004"]', 'CO_B', 'pending')
 ON CONFLICT (suggestion_id) DO NOTHING;
 """
 
