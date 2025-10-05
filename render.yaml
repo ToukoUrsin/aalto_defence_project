@@ -1,65 +1,25 @@
-services:services:
-
-  # Backend API Service  # Backend API Service
-
-  - type: web  - type: web
-
-    name: military-hierarchy-backend    name: military-hierarchy-backend
-
-    runtime: python    runtime: python
-
-    plan: free    plan: free
-
-    buildCommand: pip install -r backend/requirements.txt && python database/setup.py    buildCommand: pip install -r backend/requirements.txt && bash scripts/render_build.sh
-
-    startCommand: cd backend && gunicorn backend:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 90 --graceful-timeout 90    startCommand: cd backend && gunicorn backend:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 90 --graceful-timeout 90
-
-    envVars:    envVars:
-
-      - key: PYTHON_VERSION      - key: PYTHON_VERSION
-
-        value: 3.11.0        value: 3.11.0
-
-      - key: GEMINI_API_KEY      - key: GEMINI_API_KEY
-
-        sync: false # You'll add this manually in Render dashboard        sync: false # You'll add this manually in Render dashboard
-
-    healthCheckPath: /hierarchy      - key: DATABASE_URL
-
-        fromDatabase:
-
-  # Frontend Service          name: military-hierarchy-db
-
-  - type: web          property: connectionString
-
-    name: military-hierarchy-frontend      - key: FRONTEND_URL
-
-    runtime: node        fromService:
-
-    plan: free          type: web
-
-    rootDir: mil_dashboard          name: military-hierarchy-frontend
-
-    buildCommand: npm install --force && npm run build          property: host
-
-    startCommand: npm run start    healthCheckPath: /hierarchy
-
+services:
+  # Backend API Service
+  - type: web
+    name: military-hierarchy-backend
+    runtime: python
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt && python database/setup.py
+    startCommand: cd backend && gunicorn backend:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 90 --graceful-timeout 90
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: GEMINI_API_KEY
+        sync: false
+    healthCheckPath: /hierarchy
 
-      - key: NODE_VERSION  # Frontend Service
-
-        value: 20.11.0  - type: web
-
-      - key: NEXT_PUBLIC_API_URL    name: military-hierarchy-frontend
-
-        fromService:    runtime: node
-
-          type: web    plan: free
-
-          name: military-hierarchy-backend    rootDir: mil_dashboard
-
-          envVarKey: RENDER_EXTERNAL_URL    buildCommand: npm install --force && npm run build
-
+  # Frontend Service
+  - type: web
+    name: military-hierarchy-frontend
+    runtime: node
+    plan: free
+    rootDir: mil_dashboard
+    buildCommand: npm install --force && npm run build
     startCommand: npm run start
     envVars:
       - key: NODE_VERSION
@@ -69,10 +29,3 @@ services:services:
           type: web
           name: military-hierarchy-backend
           envVarKey: RENDER_EXTERNAL_URL
-
-databases:
-  # PostgreSQL Database
-  - name: military-hierarchy-db
-    plan: free
-    databaseName: military_hierarchy
-    user: military_user
