@@ -39,7 +39,7 @@ def test_casevac_suggest():
     
     try:
         response = requests.post(
-            "http://localhost:8000/casevac/suggest",
+            "https://military-hierarchy-backend.onrender.com//casevac/suggest",
             json=test_payload,
             timeout=30
         )
@@ -55,7 +55,7 @@ def test_casevac_suggest():
             print(response.text)
             
     except requests.exceptions.ConnectionError:
-        print("\n❌ ERROR: Could not connect to backend at http://localhost:8000")
+        print("\n❌ ERROR: Could not connect to backend at https://military-hierarchy-backend.onrender.com/")
         print("Make sure the backend is running: .\.venv\Scripts\python.exe backend.py")
     except Exception as e:
         print(f"\n❌ ERROR: {type(e).__name__}: {e}")

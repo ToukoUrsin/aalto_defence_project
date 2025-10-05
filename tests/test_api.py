@@ -8,7 +8,7 @@ import requests
 import json
 import time
 
-API_BASE = "http://localhost:8000"
+API_BASE = "https://military-hierarchy-backend.onrender.com/"
 
 def test_endpoint(endpoint, description):
     """Test a single API endpoint."""

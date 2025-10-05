@@ -1,16 +1,19 @@
 # Military Hierarchy API Documentation
 
 ## Base URL
-- **Local**: http://localhost:8000
+
+- **Local**: https://military-hierarchy-backend.onrender.com/
 - **Network**: http://10.3.35.27:8000
 - **Interactive Docs**: http://10.3.35.27:8000/docs (Swagger UI)
 
 ## Authentication
+
 Currently no authentication is required. All endpoints are publicly accessible.
 
 ## Data Models
 
 ### Soldier
+
 ```json
 {
   "soldier_id": "ALPHA_01",
@@ -25,6 +28,7 @@ Currently no authentication is required. All endpoints are publicly accessible.
 ```
 
 ### Unit
+
 ```json
 {
   "unit_id": "PLT_1",
@@ -36,6 +40,7 @@ Currently no authentication is required. All endpoints are publicly accessible.
 ```
 
 ### Raw Input
+
 ```json
 {
   "input_id": "uuid-here",
@@ -50,6 +55,7 @@ Currently no authentication is required. All endpoints are publicly accessible.
 ```
 
 ### Report
+
 ```json
 {
   "report_id": "uuid-here",
@@ -69,10 +75,12 @@ Currently no authentication is required. All endpoints are publicly accessible.
 ## API Endpoints
 
 ### System Status
+
 **GET** `/`
 Get system status and health information.
 
 **Response:**
+
 ```json
 {
   "message": "Military Hierarchy Backend API",
@@ -84,10 +92,12 @@ Get system status and health information.
 ### Units
 
 #### Get All Units
+
 **GET** `/units`
 Retrieve all military units in the hierarchy.
 
 **Response:**
+
 ```json
 {
   "units": [
@@ -102,13 +112,16 @@ Retrieve all military units in the hierarchy.
 ```
 
 #### Get Soldiers by Unit
+
 **GET** `/units/{unit_id}/soldiers`
 Get all soldiers in a specific unit.
 
 **Parameters:**
+
 - `unit_id` (path): The unit identifier
 
 **Response:**
+
 ```json
 {
   "soldiers": [
@@ -125,10 +138,12 @@ Get all soldiers in a specific unit.
 ```
 
 #### Create Unit
+
 **POST** `/units`
 Create a new military unit.
 
 **Request Body:**
+
 ```json
 {
   "unit_id": "PLT_2",
@@ -139,6 +154,7 @@ Create a new military unit.
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Unit created successfully",
@@ -149,10 +165,12 @@ Create a new military unit.
 ### Soldiers
 
 #### Get All Soldiers
+
 **GET** `/soldiers`
 Retrieve all soldiers with their unit information.
 
 **Response:**
+
 ```json
 {
   "soldiers": [
@@ -170,10 +188,12 @@ Retrieve all soldiers with their unit information.
 ```
 
 #### Create Soldier
+
 **POST** `/soldiers`
 Create a new soldier.
 
 **Request Body:**
+
 ```json
 {
   "soldier_id": "ALPHA_02",
@@ -186,6 +206,7 @@ Create a new soldier.
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Soldier created successfully",
@@ -194,13 +215,16 @@ Create a new soldier.
 ```
 
 #### Update Soldier Status
+
 **PUT** `/soldiers/{soldier_id}/status`
 Update a soldier's status and last seen timestamp.
 
 **Parameters:**
+
 - `soldier_id` (path): The soldier identifier
 
 **Request Body:**
+
 ```json
 {
   "status": "injured"
@@ -208,6 +232,7 @@ Update a soldier's status and last seen timestamp.
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Soldier status updated successfully",
@@ -219,14 +244,17 @@ Update a soldier's status and last seen timestamp.
 ### Raw Inputs
 
 #### Get Soldier Raw Inputs
+
 **GET** `/soldiers/{soldier_id}/raw_inputs?limit=50`
 Get raw inputs from a specific soldier.
 
 **Parameters:**
+
 - `soldier_id` (path): The soldier identifier
 - `limit` (query, optional): Maximum number of inputs to return (default: 50)
 
 **Response:**
+
 ```json
 {
   "soldier_id": "ALPHA_01",
@@ -243,13 +271,16 @@ Get raw inputs from a specific soldier.
 ```
 
 #### Create Raw Input
+
 **POST** `/soldiers/{soldier_id}/raw_inputs`
 Create a new raw input from a soldier.
 
 **Parameters:**
+
 - `soldier_id` (path): The soldier identifier
 
 **Request Body:**
+
 ```json
 {
   "raw_text": "Enemy spotted at grid 123456",
@@ -262,6 +293,7 @@ Create a new raw input from a soldier.
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Raw input created successfully",
@@ -272,13 +304,16 @@ Create a new raw input from a soldier.
 ### Reports
 
 #### Get All Reports
+
 **GET** `/reports?limit=100`
 Get all structured reports.
 
 **Parameters:**
+
 - `limit` (query, optional): Maximum number of reports to return (default: 100)
 
 **Response:**
+
 ```json
 {
   "reports": [
@@ -302,14 +337,17 @@ Get all structured reports.
 ```
 
 #### Get Soldier Reports
+
 **GET** `/soldiers/{soldier_id}/reports?limit=50`
 Get structured reports from a specific soldier.
 
 **Parameters:**
+
 - `soldier_id` (path): The soldier identifier
 - `limit` (query, optional): Maximum number of reports to return (default: 50)
 
 **Response:**
+
 ```json
 {
   "soldier_id": "ALPHA_01",
@@ -334,13 +372,16 @@ Get structured reports from a specific soldier.
 ```
 
 #### Create Report
+
 **POST** `/soldiers/{soldier_id}/reports`
 Create a new structured report.
 
 **Parameters:**
+
 - `soldier_id` (path): The soldier identifier
 
 **Request Body:**
+
 ```json
 {
   "report_type": "SITREP",
@@ -356,6 +397,7 @@ Create a new structured report.
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Report created successfully",
@@ -366,10 +408,12 @@ Create a new structured report.
 ### Hierarchy
 
 #### Get Military Hierarchy
+
 **GET** `/hierarchy`
 Get the complete military hierarchy structure with nested units and soldiers.
 
 **Response:**
+
 ```json
 {
   "hierarchy": [
@@ -418,6 +462,7 @@ Get the complete military hierarchy structure with nested units and soldiers.
 All endpoints may return the following error responses:
 
 ### 404 Not Found
+
 ```json
 {
   "detail": "Soldier not found"
@@ -425,6 +470,7 @@ All endpoints may return the following error responses:
 ```
 
 ### 500 Internal Server Error
+
 ```json
 {
   "detail": "Database connection failed"
@@ -434,6 +480,7 @@ All endpoints may return the following error responses:
 ## Usage Examples
 
 ### Python Example
+
 ```python
 import requests
 import json
@@ -481,49 +528,51 @@ print(response.json())
 ```
 
 ### JavaScript Example
+
 ```javascript
 const API_BASE = "http://10.3.35.27:8000";
 
 // Create a new soldier
 const soldierData = {
-    soldier_id: "ALPHA_04",
-    name: "Pvt. Sarah Wilson",
-    rank: "Private",
-    unit_id: "PLT_1",
-    device_id: "RADIO_004",
-    status: "active"
+  soldier_id: "ALPHA_04",
+  name: "Pvt. Sarah Wilson",
+  rank: "Private",
+  unit_id: "PLT_1",
+  device_id: "RADIO_004",
+  status: "active",
 };
 
 fetch(`${API_BASE}/soldiers`, {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(soldierData)
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify(soldierData),
 })
-.then(response => response.json())
-.then(data => console.log(data));
+  .then((response) => response.json())
+  .then((data) => console.log(data));
 
 // Send raw input
 const inputData = {
-    raw_text: "Enemy movement detected",
-    input_type: "voice",
-    confidence: 0.88,
-    location_ref: "GPS_345678"
+  raw_text: "Enemy movement detected",
+  input_type: "voice",
+  confidence: 0.88,
+  location_ref: "GPS_345678",
 };
 
 fetch(`${API_BASE}/soldiers/ALPHA_04/raw_inputs`, {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(inputData)
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify(inputData),
 })
-.then(response => response.json())
-.then(data => console.log(data));
+  .then((response) => response.json())
+  .then((data) => console.log(data));
 ```
 
 ### cURL Examples
+
 ```bash
 # Create a soldier
 curl -X POST "http://10.3.35.27:8000/soldiers" \

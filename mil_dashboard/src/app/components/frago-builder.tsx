@@ -45,17 +45,20 @@ export function FRAGOBuilder({
   const handleSuggest = async () => {
     setSuggesting(true);
     try {
-      const response = await fetch("http://localhost:8000/frago/suggest", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          unit_id: unitId,
-          unit_name: unitName,
-          soldier_ids: soldierIds,
-          reports: reports,
-          suggestion_id: suggestionId,
-        }),
-      });
+      const response = await fetch(
+        "https://military-hierarchy-backend.onrender.com//frago/suggest",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            unit_id: unitId,
+            unit_name: unitName,
+            soldier_ids: soldierIds,
+            reports: reports,
+            suggestion_id: suggestionId,
+          }),
+        }
+      );
 
       if (!response.ok) throw new Error("Failed to get FRAGO suggestion");
 
@@ -75,16 +78,19 @@ export function FRAGOBuilder({
       // Get all report IDs
       const reportIds = reports.map((r) => r.report_id).filter(Boolean);
 
-      const response = await fetch("http://localhost:8000/frago/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          unit_id: unitId,
-          unit_name: unitName,
-          frago_fields: fields,
-          source_report_ids: reportIds,
-        }),
-      });
+      const response = await fetch(
+        "https://military-hierarchy-backend.onrender.com//frago/generate",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            unit_id: unitId,
+            unit_name: unitName,
+            frago_fields: fields,
+            source_report_ids: reportIds,
+          }),
+        }
+      );
 
       if (!response.ok) throw new Error("Failed to generate FRAGO");
 

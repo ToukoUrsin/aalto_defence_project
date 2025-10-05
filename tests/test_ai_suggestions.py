@@ -10,7 +10,7 @@ from datetime import datetime
 import time
 
 # Backend URL
-API_BASE = "http://localhost:8000"
+API_BASE = "https://military-hierarchy-backend.onrender.com/"
 
 def send_casualty_report():
     """Send a report that should trigger URGENT CASEVAC suggestion"""
@@ -111,7 +111,7 @@ def main():
     print("2. Check if AI suggestions were created")
     print("3. You should see them in the dashboard's bell icon 🔔")
     print("\nMake sure:")
-    print("✓ Backend is running at http://localhost:8000")
+    print("✓ Backend is running at https://military-hierarchy-backend.onrender.com/")
     print("✓ Frontend is running at http://localhost:3000")
     print("\n" + "=" * 70)
     

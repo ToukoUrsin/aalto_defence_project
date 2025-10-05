@@ -11,7 +11,7 @@ from datetime import datetime
 
 # Configuration
 API_BASE = "http://10.3.35.27:8000"  # Use your network IP
-# API_BASE = "http://localhost:8000"  # Use this for local testing
+# API_BASE = "https://military-hierarchy-backend.onrender.com/"  # Use this for local testing
 
 def send_request(method, endpoint, data=None, description=""):
     """Send a request to the API and print the result."""

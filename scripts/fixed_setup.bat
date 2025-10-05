@@ -47,7 +47,7 @@ echo - Backend API: https://xxxxx.ngrok-free.dev
 echo - Unified Dashboard: https://yyyyy.ngrok-free.dev (includes Reports)
 echo.
 echo Local URLs:
-echo - Backend API: http://localhost:8000
+echo - Backend API: https://military-hierarchy-backend.onrender.com/
 echo - Unified Dashboard: http://localhost:3000 (includes Reports)
 echo.
 echo Press any key to exit...

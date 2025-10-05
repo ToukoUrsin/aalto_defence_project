@@ -83,7 +83,7 @@ export default function Home() {
   const [nodeReports, setNodeReports] = useState<Report[]>([]);
   const [loadingNodeReports, setLoadingNodeReports] = useState(false);
 
-  const API_BASE = "http://localhost:8000";
+  const API_BASE = "https://military-hierarchy-backend.onrender.com/";
 
   const unitLevels = [
     { id: "brigade", name: "Brigade", icon: Layers },

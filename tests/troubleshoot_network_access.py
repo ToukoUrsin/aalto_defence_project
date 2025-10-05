@@ -21,7 +21,7 @@ def test_local_access():
     print("=" * 60)
     
     services = [
-        (f"http://localhost:8000/", "Backend API (localhost)"),
+        (f"https://military-hierarchy-backend.onrender.com//", "Backend API (localhost)"),
         (f"http://localhost:3000/", "Main Dashboard (localhost)"),
         (f"http://localhost:3001/", "Reports UI (localhost)"),
         (f"http://{LOCAL_IP}:8000/", "Backend API (network IP)"),

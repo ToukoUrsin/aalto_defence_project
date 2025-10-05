@@ -71,7 +71,7 @@ export function CASEVACBuilder({
     setSuggestLoading(true);
     try {
       const response = await axios.post(
-        "http://localhost:8000/casevac/suggest",
+        "https://military-hierarchy-backend.onrender.com//casevac/suggest",
         {
           unit_id: unitId,
           unit_name: unitName,
@@ -111,7 +111,7 @@ export function CASEVACBuilder({
       const sourceReportIds = reports.map((r) => r.report_id);
 
       const response = await axios.post(
-        "http://localhost:8000/casevac/generate",
+        "https://military-hierarchy-backend.onrender.com//casevac/generate",
         {
           unit_id: unitId,
           unit_name: unitName,

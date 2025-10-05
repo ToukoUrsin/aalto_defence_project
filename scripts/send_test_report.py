@@ -8,7 +8,7 @@ import json
 from datetime import datetime
 
 # Backend URL
-API_BASE = "http://localhost:8000"
+API_BASE = "https://military-hierarchy-backend.onrender.com/"
 
 # Example report data
 def send_sitrep():
@@ -74,8 +74,8 @@ if __name__ == "__main__":
         
         print("\n✅ All reports sent successfully!")
         print("🔍 Check the dashboard at http://localhost:3000")
-        print("📊 View all reports: http://localhost:8000/reports")
+        print("📊 View all reports: https://military-hierarchy-backend.onrender.com//reports")
         
     except Exception as e:
         print(f"❌ Error sending reports: {e}")
-        print("Make sure the backend is running at http://localhost:8000")
+        print("Make sure the backend is running at https://military-hierarchy-backend.onrender.com/")

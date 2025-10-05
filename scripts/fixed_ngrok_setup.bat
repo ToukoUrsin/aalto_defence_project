@@ -43,7 +43,7 @@ echo - Backend API: https://xxxxx.ngrok-free.dev (Port 8000)
 echo - Unified Dashboard: https://yyyyy.ngrok-free.dev (Port 3000)
 echo.
 echo Local URLs:
-echo - Backend API: http://localhost:8000
+echo - Backend API: https://military-hierarchy-backend.onrender.com/
 echo - Unified Dashboard: http://localhost:3000 (includes Reports)
 echo.
 echo NOTE: Each service now has its own unique ngrok URL

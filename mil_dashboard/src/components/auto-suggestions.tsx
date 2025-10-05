@@ -40,8 +40,8 @@ export function AutoSuggestions({
     const fetchSuggestions = async () => {
       try {
         const url = unitId
-          ? `http://localhost:8000/api/suggestions?status=pending&unit_id=${unitId}`
-          : "http://localhost:8000/api/suggestions?status=pending";
+          ? `https://military-hierarchy-backend.onrender.com//api/suggestions?status=pending&unit_id=${unitId}`
+          : "https://military-hierarchy-backend.onrender.com//api/suggestions?status=pending";
 
         const response = await fetch(url);
         const data = await response.json();
@@ -64,9 +64,12 @@ export function AutoSuggestions({
     // Trigger reanalysis on first mount (when page loads)
     const reanalyzeReports = async () => {
       try {
-        await fetch("http://localhost:8000/api/suggestions/reanalyze", {
-          method: "POST",
-        });
+        await fetch(
+          "https://military-hierarchy-backend.onrender.com//api/suggestions/reanalyze",
+          {
+            method: "POST",
+          }
+        );
         console.log("✅ Reports reanalyzed for suggestions");
       } catch (error) {
         console.error("Error reanalyzing reports:", error);
@@ -124,9 +127,12 @@ export function AutoSuggestions({
 
   const dismissSuggestion = async (suggestionId: string) => {
     try {
-      await fetch(`http://localhost:8000/api/suggestions/${suggestionId}`, {
-        method: "DELETE",
-      });
+      await fetch(
+        `https://military-hierarchy-backend.onrender.com//api/suggestions/${suggestionId}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       setSuggestions((prev) =>
         prev.filter((s) => s.suggestion_id !== suggestionId)
@@ -140,7 +146,7 @@ export function AutoSuggestions({
     try {
       // Mark as draft_created
       await fetch(
-        `http://localhost:8000/api/suggestions/${suggestion.suggestion_id}/create-draft`,
+        `https://military-hierarchy-backend.onrender.com//api/suggestions/${suggestion.suggestion_id}/create-draft`,
         {
           method: "POST",
         }

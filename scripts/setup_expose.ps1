@@ -18,7 +18,7 @@ Write-Host ""
 
 # Start Backend API tunnel
 Write-Host "🚀 Starting Backend API tunnel (port 8000)..." -ForegroundColor Cyan
-Start-Process -FilePath ".\expose" -ArgumentList "share", "http://localhost:8000", "--subdomain=military-api" -WindowStyle Normal
+Start-Process -FilePath ".\expose" -ArgumentList "share", "https://military-hierarchy-backend.onrender.com/", "--subdomain=military-api" -WindowStyle Normal
 
 Start-Sleep -Seconds 2
 

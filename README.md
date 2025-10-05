@@ -65,7 +65,7 @@ aalto_defence_project/
 python backend/backend.py
 ```
 
-The backend will run on `http://localhost:8000`
+The backend will run on `https://military-hierarchy-backend.onrender.com/`
 
 ### 2. **Setup Frontend**
 
@@ -84,8 +84,8 @@ The dashboard will run on `http://localhost:3000` (or 3001 if 3000 is in use)
 
 ### 3. **Access the System**
 
-- **Backend API**: http://localhost:8000
-- **API Docs**: http://localhost:8000/docs
+- **Backend API**: https://military-hierarchy-backend.onrender.com/
+- **API Docs**: https://military-hierarchy-backend.onrender.com//docs
 - **Dashboard**: http://localhost:3000
 
 ## 📋 Features

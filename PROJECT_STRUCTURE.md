@@ -94,18 +94,21 @@ aalto_defence_project/
 ## 🚀 **Quick Start Commands**
 
 ### **Start the System:**
+
 ```bash
 # Recommended: Use the organized setup
 scripts\fixed_setup.bat
 ```
 
 ### **Check Status:**
+
 ```bash
 # Check all services
 tools\check_status.py
 ```
 
 ### **Run Tests:**
+
 ```bash
 # API tests
 tests\test_api.py
@@ -119,15 +122,18 @@ tests\test_network_access.py
 ## 📚 **Documentation Guide**
 
 ### **API Documentation:**
+
 - **File:** `docs/API_DOCUMENTATION.md`
-- **Live Docs:** `http://localhost:8000/docs`
+- **Live Docs:** `https://military-hierarchy-backend.onrender.com//docs`
 
 ### **Setup Guides:**
+
 - **Network Setup:** `docs/NETWORK_SETUP.md`
 - **ngrok Setup:** `docs/NGROK_SETUP_INSTRUCTIONS.md`
 - **External Access:** `docs/FRIEND_ACCESS_GUIDE.md`
 
 ### **Troubleshooting:**
+
 - **Network Issues:** `docs/NETWORK_ACCESS_CONFIRMATION.md`
 - **Alternative Solutions:** `docs/ALTERNATIVE_TUNNELING_GUIDE.md`
 
@@ -136,15 +142,18 @@ tests\test_network_access.py
 ## 🛠️ **Tool Categories**
 
 ### **Status Monitoring:**
+
 - `tools/check_status.py` - Complete system health check
 - `tools/simple_status.py` - Quick status verification
 
 ### **Data Management:**
+
 - `tools/validate_schema.py` - Database validation
 - `tools/schema_definition.py` - Schema management
 - `tools/soldier_simulator.py` - Test data generation
 
 ### **API Testing:**
+
 - `tools/api_data_examples.py` - API usage examples
 - `docs/api_test_form.html` - Web-based API testing
 
@@ -153,15 +162,18 @@ tests\test_network_access.py
 ## 🧪 **Test Categories**
 
 ### **API Tests:**
+
 - `tests/test_api.py` - API endpoint testing
 - `tests/test_backend.py` - Backend functionality
 
 ### **Network Tests:**
+
 - `tests/test_network_access.py` - Local network connectivity
 - `tests/test_tunnel_access.py` - Tunnel connectivity
 - `tests/quick_network_test.py` - Quick network verification
 
 ### **Troubleshooting:**
+
 - `tests/troubleshoot_network_access.py` - Network diagnostics
 
 ---
@@ -169,16 +181,19 @@ tests\test_network_access.py
 ## 🔧 **Script Categories**
 
 ### **System Startup:**
+
 - `scripts/fixed_setup.bat` - **RECOMMENDED** - Complete system startup
 - `scripts/start_all.bat` - Basic service startup
 - `scripts/working_setup.bat` - Alternative startup
 
 ### **ngrok Integration:**
+
 - `scripts/setup_ngrok.bat` - ngrok installation
 - `scripts/start_with_ngrok.bat` - Start with ngrok
 - `scripts/configure_ngrok.ps1` - ngrok configuration
 
 ### **Alternative Solutions:**
+
 - `scripts/setup_expose.bat` - Expose.dev setup
 - `scripts/setup_complete_system.bat` - Complete system setup
 
@@ -187,11 +202,13 @@ tests\test_network_access.py
 ## 🌍 **Global Access**
 
 ### **ngrok Configuration:**
+
 - **Directory:** `ngrok/`
 - **Executable:** `ngrok/ngrok.exe`
 - **Config:** `ngrok/ngrok.yml`
 
 ### **Public URLs:**
+
 - Check ngrok windows for public URLs
 - Share URLs with team members
 - Access from anywhere in the world
@@ -201,17 +218,20 @@ tests\test_network_access.py
 ## 🎯 **Benefits of Organization**
 
 ### ✅ **Clean Structure:**
+
 - **Documentation** in one place (`docs/`)
 - **Tests** organized (`tests/`)
 - **Scripts** centralized (`scripts/`)
 - **Tools** grouped (`tools/`)
 
 ### ✅ **Easy Navigation:**
+
 - **Quick access** to any file type
 - **Logical grouping** by function
 - **Professional structure** for collaboration
 
 ### ✅ **Maintainability:**
+
 - **Clear separation** of concerns
 - **Easy to find** specific files
 - **Scalable structure** for growth
@@ -231,6 +251,7 @@ tests\test_network_access.py
 ## 🎉 **Organization Complete!**
 
 **Your Military Hierarchy System is now professionally organized with:**
+
 - ✅ **Clean directory structure**
 - ✅ **Organized documentation**
 - ✅ **Grouped test files**

@@ -28,7 +28,7 @@ timeout /t 3 /nobreak > nul
 echo.
 echo Step 4: Testing local services...
 echo Testing Backend API...
-curl -s http://localhost:8000/ > nul 2>&1
+curl -s https://military-hierarchy-backend.onrender.com// > nul 2>&1
 if %errorlevel% equ 0 (
     echo ✅ Backend API is running
 ) else (
@@ -74,7 +74,7 @@ echo.
 echo Your Military Hierarchy System is now running!
 echo.
 echo Local URLs:
-echo - Backend API: http://localhost:8000
+echo - Backend API: https://military-hierarchy-backend.onrender.com/
 echo - Main Dashboard: http://localhost:3000
 echo - Reports UI: http://localhost:3001
 echo.

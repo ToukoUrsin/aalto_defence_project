@@ -49,7 +49,7 @@ def main():
     # Check services
     print("\n🌐 Checking Services:")
     services = [
-        ("http://localhost:8000/", "Backend API"),
+        ("https://military-hierarchy-backend.onrender.com//", "Backend API"),
         ("http://localhost:3000/", "Main Dashboard"),
         ("http://localhost:3001/", "Reports UI")
     ]

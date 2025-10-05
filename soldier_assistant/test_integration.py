@@ -130,7 +130,7 @@ def main():
         print("\n📋 Check the backend logs to verify messages were received.")
         print("   - Backend should show soldier inputs in the database")
         print("   - Backend should show heartbeat messages")
-        print("   - Check http://localhost:8000/reports for new data")
+        print("   - Check https://military-hierarchy-backend.onrender.com//reports for new data")
         
     except Exception as e:
         print(f"❌ Test failed: {e}")

@@ -1,7 +1,15 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { ChevronRight, ChevronDown, Users, Shield, Building2, User, Radio } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import {
+  ChevronRight,
+  ChevronDown,
+  Users,
+  Shield,
+  Building2,
+  User,
+  Radio,
+} from "lucide-react";
 
 interface Unit {
   unit_id: string;
@@ -33,7 +41,10 @@ interface MilitaryHierarchyTreeProps {
   selectedNodeId?: string;
 }
 
-export function MilitaryHierarchyTree({ onNodeSelect, selectedNodeId }: MilitaryHierarchyTreeProps) {
+export function MilitaryHierarchyTree({
+  onNodeSelect,
+  selectedNodeId,
+}: MilitaryHierarchyTreeProps) {
   const [hierarchy, setHierarchy] = useState<HierarchyNode[]>([]);
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -44,19 +55,20 @@ export function MilitaryHierarchyTree({ onNodeSelect, selectedNodeId }: Military
 
   const fetchHierarchy = async () => {
     try {
-      const response = await await fetch('http://localhost:8000/hierarchy');
+      const response = await await fetch(
+        "https://military-hierarchy-backend.onrender.com//hierarchy"
+      );
       const data = await response.json();
-      
+
       // Transform the flat hierarchy data into a tree structure
       const tree = buildHierarchyTree(data.hierarchy);
       setHierarchy(tree);
-      
+
       // Expand the top level by default
-      const topLevelIds = tree.map(node => node.unit.unit_id);
+      const topLevelIds = tree.map((node) => node.unit.unit_id);
       setExpandedNodes(new Set(topLevelIds));
-      
     } catch (error) {
-      console.error('Error fetching hierarchy:', error);
+      console.error("Error fetching hierarchy:", error);
     } finally {
       setLoading(false);
     }
@@ -74,10 +86,10 @@ export function MilitaryHierarchyTree({ onNodeSelect, selectedNodeId }: Military
           name: unit.name,
           parent_unit_id: unit.parent_unit_id,
           level: unit.level,
-          created_at: unit.created_at
+          created_at: unit.created_at,
         },
         children: [],
-        soldiers: unit.soldiers || []
+        soldiers: unit.soldiers || [],
       };
       nodeMap.set(unit.unit_id, node);
     });
@@ -101,7 +113,7 @@ export function MilitaryHierarchyTree({ onNodeSelect, selectedNodeId }: Military
   };
 
   const toggleExpanded = (nodeId: string) => {
-    setExpandedNodes(prev => {
+    setExpandedNodes((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(nodeId)) {
         newSet.delete(nodeId);
@@ -114,13 +126,13 @@ export function MilitaryHierarchyTree({ onNodeSelect, selectedNodeId }: Military
 
   const getLevelIcon = (level: string) => {
     switch (level.toLowerCase()) {
-      case 'battalion':
+      case "battalion":
         return <Building2 className="h-4 w-4 text-blue-500" />;
-      case 'company':
+      case "company":
         return <Shield className="h-4 w-4 text-green-500" />;
-      case 'platoon':
+      case "platoon":
         return <Users className="h-4 w-4 text-orange-500" />;
-      case 'squad':
+      case "squad":
         return <User className="h-4 w-4 text-purple-500" />;
       default:
         return <Users className="h-4 w-4 text-gray-500" />;
@@ -129,20 +141,23 @@ export function MilitaryHierarchyTree({ onNodeSelect, selectedNodeId }: Military
 
   const getLevelColor = (level: string) => {
     switch (level.toLowerCase()) {
-      case 'battalion':
-        return 'bg-military-blue/20 text-foreground border-military-blue/30';
-      case 'company':
-        return 'bg-military-olive/20 text-foreground border-military-olive/30';
-      case 'platoon':
-        return 'bg-military-amber/20 text-foreground border-military-amber/30';
-      case 'squad':
-        return 'bg-military-red/20 text-foreground border-military-red/30';
+      case "battalion":
+        return "bg-military-blue/20 text-foreground border-military-blue/30";
+      case "company":
+        return "bg-military-olive/20 text-foreground border-military-olive/30";
+      case "platoon":
+        return "bg-military-amber/20 text-foreground border-military-amber/30";
+      case "squad":
+        return "bg-military-red/20 text-foreground border-military-red/30";
       default:
-        return 'bg-muted text-foreground border-border';
+        return "bg-muted text-foreground border-border";
     }
   };
 
-  const renderNode = (node: HierarchyNode, depth: number = 0): React.ReactNode => {
+  const renderNode = (
+    node: HierarchyNode,
+    depth: number = 0
+  ): React.ReactNode => {
     const isExpanded = expandedNodes.has(node.unit.unit_id);
     const isSelected = selectedNodeId === node.unit.unit_id;
     const hasChildren = node.children.length > 0;
@@ -154,7 +169,11 @@ export function MilitaryHierarchyTree({ onNodeSelect, selectedNodeId }: Military
         <div
           className={`
             flex items-center p-3 rounded-lg cursor-pointer transition-all duration-200
-            ${isSelected ? 'neumorphic-inset border-l-4 border-foreground' : 'hover:bg-muted/50'}
+            ${
+              isSelected
+                ? "neumorphic-inset border-l-4 border-foreground"
+                : "hover:bg-muted/50"
+            }
           `}
           style={{ marginLeft: `${depth * 16}px` }}
           onClick={() => onNodeSelect(node)}
@@ -169,7 +188,7 @@ export function MilitaryHierarchyTree({ onNodeSelect, selectedNodeId }: Military
               }
             }}
           >
-            {(hasChildren || hasSoldiers) ? (
+            {hasChildren || hasSoldiers ? (
               isExpanded ? (
                 <ChevronDown className="h-3 w-3 text-muted-foreground" />
               ) : (
@@ -181,18 +200,20 @@ export function MilitaryHierarchyTree({ onNodeSelect, selectedNodeId }: Military
           </button>
 
           {/* Unit Icon */}
-          <div className="mr-2">
-            {getLevelIcon(node.unit.level)}
-          </div>
+          <div className="mr-2">{getLevelIcon(node.unit.level)}</div>
 
           {/* Unit Info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span className="font-medium text-sm truncate text-foreground">{node.unit.name}</span>
-              <span className={`
+              <span className="font-medium text-sm truncate text-foreground">
+                {node.unit.name}
+              </span>
+              <span
+                className={`
                 px-2 py-0.5 text-xs rounded-full border font-medium font-mono
                 ${getLevelColor(node.unit.level)}
-              `}>
+              `}
+              >
                 {node.unit.level}
               </span>
             </div>
@@ -213,14 +234,20 @@ export function MilitaryHierarchyTree({ onNodeSelect, selectedNodeId }: Military
                     key={soldier.soldier_id}
                     className={`
                       flex items-center p-3 ml-4 rounded cursor-pointer transition-all duration-200
-                      ${selectedNodeId === soldier.soldier_id ? 'neumorphic-inset border-l-4 border-foreground' : 'hover:bg-muted/50'}
+                      ${
+                        selectedNodeId === soldier.soldier_id
+                          ? "neumorphic-inset border-l-4 border-foreground"
+                          : "hover:bg-muted/50"
+                      }
                     `}
                     onClick={() => onNodeSelect(soldier)}
                   >
                     <Radio className="h-3 w-3 text-muted-foreground mr-2" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-sm truncate text-foreground">{soldier.name}</span>
+                        <span className="font-medium text-sm truncate text-foreground">
+                          {soldier.name}
+                        </span>
                         <span className="px-1.5 py-0.5 text-xs bg-muted text-muted-foreground rounded font-mono">
                           {soldier.rank}
                         </span>
@@ -255,10 +282,14 @@ export function MilitaryHierarchyTree({ onNodeSelect, selectedNodeId }: Military
   return (
     <div className="h-full overflow-y-auto bg-card">
       <div className="p-6 border-b border-border bg-card/50">
-        <h2 className="text-xl font-bold font-mono text-foreground">MILITARY HIERARCHY</h2>
-        <p className="text-sm text-muted-foreground mt-1">Click to view details and reports</p>
+        <h2 className="text-xl font-bold font-mono text-foreground">
+          MILITARY HIERARCHY
+        </h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          Click to view details and reports
+        </p>
       </div>
-      
+
       <div className="p-4">
         {hierarchy.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">

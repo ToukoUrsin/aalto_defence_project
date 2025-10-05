@@ -36,7 +36,7 @@ echo Check the ngrok window for your public URL:
 echo - Unified Dashboard: https://xxxxx.ngrok-free.dev (includes everything)
 echo.
 echo Local URLs:
-echo - Backend API: http://localhost:8000 (internal only)
+echo - Backend API: https://military-hierarchy-backend.onrender.com/ (internal only)
 echo - Unified Dashboard: http://localhost:3000 (public via ngrok)
 echo.
 echo NOTE: Only the Unified Dashboard is exposed publicly

@@ -82,19 +82,22 @@ export function AIChat({ selectedNode, reports }: AIChatProps) {
       });
 
       // Call AI API (you'll need to implement this endpoint)
-      const response = await fetch("http://localhost:8000/ai/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: input,
-          context: {
-            node: selectedNode,
-            reports: reportsContext,
+      const response = await fetch(
+        "https://military-hierarchy-backend.onrender.com//ai/chat",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
-        }),
-      });
+          body: JSON.stringify({
+            message: input,
+            context: {
+              node: selectedNode,
+              reports: reportsContext,
+            },
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("AI response failed");

@@ -46,7 +46,7 @@ export function StreamPanel({ streamId, onItemClick }: StreamPanelProps) {
   const [message, setMessage] = useState("");
   const [updates, setUpdates] = useState<BattlefieldReport[]>([]);
   const [loading, setLoading] = useState(false);
-  const API_BASE = "http://localhost:8000";
+  const API_BASE = "https://military-hierarchy-backend.onrender.com/";
 
   // Fetch existing reports on mount and periodically
   useEffect(() => {
