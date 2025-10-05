@@ -303,10 +303,11 @@ INSERT INTO fragos (frago_id, unit_id, task, assigned_by, assigned_at, status, p
 ON CONFLICT (frago_id) DO NOTHING;
 
 -- Sample Suggestions (Smart Notifications)
-INSERT INTO suggestions (suggestion_id, suggestion_type, urgency, reason, confidence, source_reports, unit_id, status) VALUES 
-('SUGG_001', 'CASEVAC', 'HIGH', 'Critical casualties detected requiring immediate evacuation', 0.95, '["REPORT_001"]', 'PLT_1', 'pending'),
-('SUGG_002', 'EOINCREP', 'HIGH', 'Explosive ordnance detected - EOD team required', 0.92, '["REPORT_002"]', 'SQD_2', 'pending'),
-('SUGG_003', 'EOINCREP', 'MEDIUM', 'Enemy contact reported - tactical assessment needed', 0.89, '["REPORT_004"]', 'CO_B', 'pending')
+-- Note: Using explicit column names to match the migrated schema
+INSERT INTO suggestions (suggestion_id, suggestion_type, status, unit_id, created_at, urgency, reason, confidence, source_reports) VALUES 
+('SUGG_001', 'CASEVAC', 'pending', 'PLT_1', NOW(), 'HIGH', 'Critical casualties detected requiring immediate evacuation', 0.95, '["REPORT_001"]'),
+('SUGG_002', 'EOINCREP', 'pending', 'SQD_2', NOW(), 'HIGH', 'Explosive ordnance detected - EOD team required', 0.92, '["REPORT_002"]'),
+('SUGG_003', 'EOINCREP', 'pending', 'CO_B', NOW(), 'MEDIUM', 'Enemy contact reported - tactical assessment needed', 0.89, '["REPORT_004"]')
 ON CONFLICT (suggestion_id) DO NOTHING;
 """
 
